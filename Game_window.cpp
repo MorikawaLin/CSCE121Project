@@ -1,75 +1,27 @@
-#include "std_lib_facilities_5.h"
-#include "FL/Fl_JPEG_Image.H"
-#include "Simple_window.h"
-#include "Window.h"
-#include "Graph.h"
-#include "GUI.h"
 
-struct Game_window : Graph_lib::Window {
-	Game_window(Point xy, int w, int h, const string& title);
-	int level() { return lev; }
-private:
-	int lev;
-	Vector<int> xs;
-	Vector<int> ys;
-	Vector_ref<Button> numbers;
-	const vector<string> num_labels;
-
-	Button beginner;
-	Button intermediate;
-	Button advanced;
-	Button expert;
-
-	Button choose_difficulty;
-	Button show_rule;
-	Button back_to_menu;
-	Button start_button;
-	Button quit_button;
-
-	void clear();
-
-	static void cb_choose(Address, Address);
-	void choose();
-	static void cb_rule(Address, Address);
-	void rule();
-	static void cb_back(Address, Address);
-	void back();
-	static void cb_start(Address, Address);
-	void start();
-
-	static void cb_beg(Address, Address);
-	void beg();
-	static void cb_inte(Address, Address);
-	void inte();
-	static void cb_adv(Address, Address);
-	void adv();
-	static void cb_expr(Address, Address);
-	void expr();
-
-	void check_and_move(int);
-
-	static void cb_quit(Address, Address);
-	void quit();
-};
+#include "Game_window.h"
 
 Game_window::Game_window(Point xy, int w, int h, const string& title)
 	:Window{ xy, w, h, title },
 	lev{ 0 },
 	/*num_labels{ "", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15"},*/
-	choose_difficulty{ Point{ 30, 450 }, 200, 100, "Choose Difficulty", cb_choose },
-	start_button{ Point{ 260, 430 }, 280, 140, "Start the Game!", cb_start },
-	show_rule{ Point{ 570, 450 }, 200, 100, "Read The Rules", cb_rule },
-	back_to_menu{ Point{ 570, 450 }, 200, 100, "Go Back To Menu", cb_back },
+
 	beginner{ Point{ 75, 50 }, 300, 100, "Beginner", cb_beg },
 	intermediate{ Point{ 425, 50 }, 300, 100, "Intermediate", cb_inte },
 	advanced{ Point{ 75, 250 }, 300, 100, "Advanced", cb_adv },
 	expert{ Point{ 425, 250 }, 300, 100, "Expert", cb_expr },
+	choose_difficulty{ Point{ 30, 450 }, 200, 100, "Choose Difficulty", cb_choose },
+	show_rule{ Point{ 570, 450 }, 200, 100, "Read The Rules", cb_rule },
+	back_to_menu{ Point{ 570, 450 }, 200, 100, "Go Back To Menu", cb_back },
+	start_button{ Point{ 260, 430 }, 280, 140, "Start the Game!", cb_start },
 	quit_button{ Point{ x_max() - 70, 0 }, 70, 20, "Quit", cb_quit }
 {
 	attach(choose_difficulty);
 	attach(start_button);
 	attach(show_rule);
 	attach(quit_button);
+	
+	WriteFile();
 }
 
 void Game_window::cb_choose(Address, Address pw)
@@ -147,7 +99,7 @@ void Game_window::rule() {
 	attach(choose_difficulty);
 	attach(start_button);
 	attach(quit_button);
-
+	
 	redraw();
 }
 
@@ -198,6 +150,7 @@ void Game_window::start() {
 
 		attach(quit_button);
 	}
+	DetermineScoreRange(lev);
 	redraw();
 }
 
@@ -209,7 +162,7 @@ void Game_window::beg()
 }
 
 void Game_window::inte()
-{
+{	
 	lev = 2;
 	xs = { 150, 50, 250, 250, 350, 50, 150, 350, 350, 50, 150, 350, 250, 50, 250, 150 };
 	ys = { 250, 150, 250, 150, 150, 250, 150, 350, 450, 350, 350, 250, 450, 450, 350, 450 };
@@ -227,7 +180,6 @@ void Game_window::expr()
 
 void Game_window::check_and_move(int i) {
 	// Check which button is clicked
-
 	// If the blank button numbers.at(0) is clicked
 	// Hightlight buttons that may move
 	// Act as a hint button
@@ -238,6 +190,86 @@ void Game_window::check_and_move(int i) {
 
 	redraw();
 }
+
+void Game_window::WriteFile()
+{
+	ofstream o;
+	o.open(FILE_NAME,ios::trunc);
+	vector<string> diffs={"Beginner","Intermediate","Advanced","Expert"};
+	for(int i=0;i<4;i++)
+	{
+		o<<diffs[i]<<endl;
+		for(int j=0;j<5;j++)
+		{
+			o<<"___"<<endl;
+			o<<"____"<<endl;
+		}
+		o<<endl;
+	}
+	o.close();
+}
+
+void Game_window::DetermineScoreRange(int l)
+{
+	switch(l)
+	{
+		case 1:
+			DrawScores("Beginner"); //fallthrough
+			break;
+		case 2:
+			DrawScores("Intermediate"); //fallthrough
+			break;
+		case 3:
+			DrawScores("Advanced"); //fallthrough
+			break;
+		case 4:
+			DrawScores("Expert"); //fallthrough
+	}
+}
+
+void Game_window::DrawScores(String lim)
+{
+	cout<<lim<<endl;
+	ifstream in;
+	in.open(FILE_NAME);
+	string x="";
+	while(in>>x) 
+	{
+		if(x==lim)
+		{
+			cout<<x<<endl;
+			vector<Text*> text;
+			Text* t=new Text(Point(505,75),"HIGH SCORES");
+			t->set_font_size(40);
+			Text* te=new Text(Point(555,110),x);
+			te->set_font_size(30);
+			text.push_back(t);
+			text.push_back(te);
+			string one="";
+			string two="";
+			string res="";
+			int place=150;
+			for(int i=0;i<5;i++)
+			{
+				in>>one>>two;
+				res=one+"              "+two;
+				cout<<res<<endl;
+				Text* t=new Text(Point(555,place),res);
+				t->set_font_size(20);
+				text.push_back(t);
+				place+=50;
+			}
+			for(int i=0;i<text.size();i++)
+			{
+				attach(*text[i]);
+			}
+			break;
+		}
+	}
+		
+
+}
+
 
 void Game_window::quit()
 {
@@ -250,7 +282,6 @@ int main() {
 			H112);
 
 		Game_window win{ Point(200, 200), 800, 600, "Game" };
-
 		return gui_main();
 	}
 	catch (exception& e) {
