@@ -14,7 +14,9 @@ Game_window::Game_window(Point xy, int w, int h, const string& title)
 	show_rule{ Point{ 570, 450 }, 200, 100, "Read The Rules", cb_rule },
 	back_to_menu{ Point{ 570, 450 }, 200, 100, "Go Back To Menu", cb_back },
 	start_button{ Point{ 260, 430 }, 280, 140, "Start the Game!", cb_start },
-	quit_button{ Point{ x_max() - 70, 0 }, 70, 20, "Quit", cb_quit }
+	quit_button{ Point{ x_max() - 70, 0 }, 70, 20, "Quit", cb_quit },
+	Out_box rule_text{ Point{ 0, 0 }, 600, 500, "How to Play: \n \n The game consists of a grid that holds a specific number of boxes depending on the difficulty chosen. \n Each box has numbers positioned out of order except for one that is empty. \n The goal of the game is to correct the order of numbers by sliding boxes into the empty slot in as few moves as possible. \n You can move the pieces by clicking on the peice you would like to move and then clicking on the space you would like to move the selected piece to. \n You may not move a numbered peice into a flilled spot. \n Each block moved will be counted as a move. \n Good luck!!!"}
+	
 {
 	attach(choose_difficulty);
 	attach(start_button);
@@ -99,7 +101,9 @@ void Game_window::rule() {
 	attach(choose_difficulty);
 	attach(start_button);
 	attach(quit_button);
+	attach(rule_text);
 	
+	show();
 	redraw();
 }
 
