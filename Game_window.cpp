@@ -4,8 +4,8 @@
 Game_window::Game_window(Point xy, int w, int h, const string& title)
 	:Window{ xy, w, h, title },
 	lev{ 0 },
-	/*num_labels{ "", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15"},*/
-
+	checked{ false },
+	num_labels{2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 	beginner{ Point{ 75, 50 }, 300, 100, "Beginner", cb_beg },
 	intermediate{ Point{ 425, 50 }, 300, 100, "Intermediate", cb_inte },
 	advanced{ Point{ 75, 250 }, 300, 100, "Advanced", cb_adv },
@@ -15,7 +15,14 @@ Game_window::Game_window(Point xy, int w, int h, const string& title)
 	back_to_menu{ Point{ 570, 450 }, 200, 100, "Go Back To Menu", cb_back },
 	start_button{ Point{ 260, 430 }, 280, 140, "Start the Game!", cb_start },
 	quit_button{ Point{ x_max() - 70, 0 }, 70, 20, "Quit", cb_quit },
-	Out_box rule_text{ Point{ 0, 0 }, 600, 500, "How to Play: \n \n The game consists of a grid that holds a specific number of boxes depending on the difficulty chosen. \n Each box has numbers positioned out of order except for one that is empty. \n The goal of the game is to correct the order of numbers by sliding boxes into the empty slot in as few moves as possible. \n You can move the pieces by clicking on the peice you would like to move and then clicking on the space you would like to move the selected piece to. \n You may not move a numbered peice into a flilled spot. \n Each block moved will be counted as a move. \n Good luck!!!"}
+	Out_box rule_text{ Point{ 0, 0 }, 600, 500, "How to Play:\n\n"
+		"The game consists of a grid that holds a specific number of boxes depending on the difficulty chosen.\n"
+	    "Each box has numbers positioned out of order except for one that is empty.\n"
+		"The goal of the game is to correct the order of numbers by sliding boxes into the empty slot in as few moves as possible.\n"
+		"You can move the pieces by clicking on the peice you would like to move and then clicking on the space you would like to move the selected piece to.\n"
+		"You may not move a numbered peice into a flilled spot.\n"
+		"Each block moved will be counted as a move.\n"
+		"Good luck!!!"}
 	
 {
 	attach(choose_difficulty);
@@ -102,8 +109,7 @@ void Game_window::rule() {
 	attach(start_button);
 	attach(quit_button);
 	attach(rule_text);
-	
-	show();
+
 	redraw();
 }
 
@@ -120,7 +126,7 @@ void Game_window::back() {
 }
 
 void Game_window::start() {
-	if (lev == 0) {
+	if (lev < 1 || lev > 4) {
 		throw;
 	}
 	else {
@@ -182,15 +188,45 @@ void Game_window::expr()
 	lev = 4;
 }
 
-void Game_window::check_and_move(int i) {
-	// Check which button is clicked
-	// If the blank button numbers.at(0) is clicked
-	// Hightlight buttons that may move
-	// Act as a hint button
+void Game_window::valid_label() {
+	for (int i = 1; i < 16; ++i) {
+		if (abs(numbers[i].x + numbers[i].y - numbers[0].x - numbers[0].y) == 100) {
+			num_labels[i] = 1;
+		}
+		else {
+			num_labels[i] = 0;
+		}
+	}
+	checked = true;
+}
 
-	// Otherwise
-	// Check valid moves for corresponding button
-	// Move the button and the blank button
+void Game_window::check_and_move(int k) {
+	if (!checked) {
+		valid_label();
+	}
+
+	if (num_labels[k] == 0) {
+		throw;
+	}
+	else if (num_labels[k] = 1) {
+		for (int i = 1; i < 16; ++i) {
+			if (num_labels[i] == 1) {
+				numbers[i].set_fill_color(Color::invisible);
+			}
+		}
+		tempX = numbers[k].x;
+		tempy = numbers[k].y;
+		numbers[k].move(numbers[0].x - tempX, numbers[0].y - tempY);
+		numbers[0].move(tempX - numbers[0].x, tempY - numbers[0].y);
+		checked = false;
+	}
+	else { // Blank Button  
+		for (int i = 1; i < 16; ++i) {
+			if (num_labels[i] == 1) {
+				numbers[i].set_fill_color(Color::yellow);
+			}
+		}
+	}
 
 	redraw();
 }
@@ -198,17 +234,17 @@ void Game_window::check_and_move(int i) {
 void Game_window::WriteFile()
 {
 	ofstream o;
-	o.open(FILE_NAME,ios::trunc);
-	vector<string> diffs={"Beginner","Intermediate","Advanced","Expert"};
-	for(int i=0;i<4;i++)
+	o.open(FILE_NAME, ios::trunc);
+	vector<string> diffs = {"Beginner", "Intermediate", "Advanced", "Expert"};
+	for(int i = 0; i < 4; ++i)
 	{
-		o<<diffs[i]<<endl;
-		for(int j=0;j<5;j++)
+		o << diffs[i] << endl;
+		for(int j = 0; j < 5; ++j)
 		{
-			o<<"___"<<endl;
-			o<<"____"<<endl;
+			o << "___" << endl;
+			o << "____" << endl;
 		}
-		o<<endl;
+		o << endl;
 	}
 	o.close();
 }
@@ -228,52 +264,52 @@ void Game_window::DetermineScoreRange(int l)
 			break;
 		case 4:
 			DrawScores("Expert"); //fallthrough
+			break;
+		default:
+			throw;
 	}
 }
 
 void Game_window::DrawScores(String lim)
 {
-	cout<<lim<<endl;
+	cout << lim << endl;
 	ifstream in;
 	in.open(FILE_NAME);
-	string x="";
-	while(in>>x) 
+	string x = "";
+	while(in >> x) 
 	{
-		if(x==lim)
+		if(x == lim)
 		{
-			cout<<x<<endl;
+			cout << x << endl;
 			vector<Text*> text;
-			Text* t=new Text(Point(505,75),"HIGH SCORES");
-			t->set_font_size(40);
-			Text* te=new Text(Point(555,110),x);
-			te->set_font_size(30);
+			Text* t = new Text( Point(505, 75), "HIGH SCORES");
+			t -> set_font_size(40);
+			Text* te = new Text( Point(555, 110), x);
+			te -> set_font_size(30);
 			text.push_back(t);
 			text.push_back(te);
-			string one="";
-			string two="";
-			string res="";
-			int place=150;
-			for(int i=0;i<5;i++)
+			string one = "";
+			string two = "";
+			string res = "";
+			int place = 150;
+			for(int i = 0; i < 5; ++i)
 			{
-				in>>one>>two;
-				res=one+"              "+two;
-				cout<<res<<endl;
-				Text* t=new Text(Point(555,place),res);
-				t->set_font_size(20);
+				in >> one >> two;
+				res = one + "              " + two;
+				cout << res << endl;
+				Text* t = new Text( Point(555, place), res);
+				t -> set_font_size(20);
 				text.push_back(t);
-				place+=50;
+				place += 50;
 			}
-			for(int i=0;i<text.size();i++)
+			for(int i = 0; i < text.size(); ++i)
 			{
 				attach(*text[i]);
 			}
 			break;
 		}
 	}
-		
-
 }
-
 
 void Game_window::quit()
 {

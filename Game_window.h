@@ -12,10 +12,11 @@ struct Game_window : Graph_lib::Window
 	const string FILE_NAME{"HighScores.txt"};
 private:
 	int lev;
+	bool checked;
 	Vector<int> xs;
 	Vector<int> ys;
 	Vector_ref<Button> numbers;
-	const vector<string> num_labels;
+	vector<int> num_labels;
 
 	Button beginner;
 	Button intermediate;
@@ -48,6 +49,7 @@ private:
 	static void cb_expr(Address, Address);
 	void expr();
 
+	void valid_label();
 	void check_and_move(int);
 
 	static void cb_quit(Address, Address);
