@@ -12,11 +12,13 @@ struct Game_window : Graph_lib::Window
 	const string FILE_NAME{"HighScores.txt"};
 private:
 	int lev;
-	bool checked;
+	vector<int> num_labels;
 	Vector<int> xs;
 	Vector<int> ys;
+	Vector<int> final_xs;
+	Vector<int> final_ys;
 	Vector_ref<Button> numbers;
-	vector<int> num_labels;
+	Button* colorPointer;
 
 	Button beginner;
 	Button intermediate;
@@ -27,6 +29,7 @@ private:
 	Button show_rule;
 	Button back_to_menu;
 	Button start_button;
+	Button hint_button;
 	Button quit_button;
 
 	void clear();
@@ -52,14 +55,15 @@ private:
 	void valid_label();
 	void check_and_move(int);
 
-	static void cb_quit(Address, Address);
-	void quit();
+	int dist_calc(int);
+	static void cb_hint(Address, Address);
+	void hint();
 
 	void WriteFile();
-	
 	void DetermineScoreRange(int);
 	void DrawScores(String);
 
-
+	static void cb_quit(Address, Address);
+	void quit();
 };
 

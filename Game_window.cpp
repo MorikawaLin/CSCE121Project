@@ -4,8 +4,9 @@
 Game_window::Game_window(Point xy, int w, int h, const string& title)
 	:Window{ xy, w, h, title },
 	lev{ 0 },
-	checked{ false },
 	num_labels{2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+	final_xs{350, 50, 150, 250, 350, 50, 150, 250, 350, 50, 150, 250, 350, 50, 150, 250},
+	final_ys{450, 150, 150, 150, 150, 250, 250, 250, 250, 350, 350, 350, 350, 450, 450, 450},
 	beginner{ Point{ 75, 50 }, 300, 100, "Beginner", cb_beg },
 	intermediate{ Point{ 425, 50 }, 300, 100, "Intermediate", cb_inte },
 	advanced{ Point{ 75, 250 }, 300, 100, "Advanced", cb_adv },
@@ -14,6 +15,7 @@ Game_window::Game_window(Point xy, int w, int h, const string& title)
 	show_rule{ Point{ 570, 450 }, 200, 100, "Read The Rules", cb_rule },
 	back_to_menu{ Point{ 570, 450 }, 200, 100, "Go Back To Menu", cb_back },
 	start_button{ Point{ 260, 430 }, 280, 140, "Start the Game!", cb_start },
+	hint_button{ Point{ 0, 0 }, 70, 20, "HINT", cb_hint },
 	quit_button{ Point{ x_max() - 70, 0 }, 70, 20, "Quit", cb_quit }/*,
 	Out_box rule_text{ Point{ 0, 0 }, 600, 500, "How to Play:\n\n"
 		"The game consists of a grid that holds a specific number of boxes depending on the difficulty chosen.\n"
@@ -71,6 +73,11 @@ void Game_window::cb_adv(Address, Address pw)
 void Game_window::cb_expr(Address, Address pw)
 {
 	reference_to<Game_window>(pw).expr();
+}
+
+void Game_window::cb_hint(Address, Address pw)
+{
+	reference_to<Game_window>(pw).hint();
 }
 
 void Game_window::cb_quit(Address, Address pw)
@@ -154,13 +161,18 @@ void Game_window::start() {
 		numbers.push_back(new Button{ Point{ xs.at(14), ys.at(14) }, 100, 100, "14", [](Address, Address pw) {reference_to<Game_window>(pw).check_and_move(14);} });
 		numbers.push_back(new Button{ Point{ xs.at(15), ys.at(15) }, 100, 100, "15", [](Address, Address pw) {reference_to<Game_window>(pw).check_and_move(15);} });
 
+		valid_label();
+
 		for (int i = 0; i < 16; ++i) {
 			attach(numbers[i]);
 		}
 
+		attach(hint_button);
 		attach(quit_button);
 	}
+
 	DetermineScoreRange(lev);
+
 	redraw();
 }
 
@@ -190,50 +202,63 @@ void Game_window::expr()
 
 void Game_window::valid_label() {
 	for (int i = 1; i < 16; ++i) {
-		if (abs(numbers[i].loc.x + numbers[i].loc.y - numbers[0].loc.x - numbers[0].loc.y) == 100) {
+		if (abs(numbers[i].loc.x - numbers[0].loc.x) + abs(numbers[i].loc.y - numbers[0].loc.y) == 100) {
 			num_labels[i] = 1;
 		}
 		else {
 			num_labels[i] = 0;
 		}
 	}
-	checked = true;
 }
 
 void Game_window::check_and_move(int k) {
-	if (!checked) {
-		valid_label();
-	}
-
 	if (num_labels[k] == 0) {
 		throw;
 	}
 	else if (num_labels[k] == 1) {
-		/*
-		for (int i = 1; i < 16; ++i) {
+		/*for (int i = 1; i < 16; ++i) {
 			if (num_labels[i] == 1) {
-				numbers[i].set_fill_color(Color::invisible);
+				colorPointer = numbers[i];
+				colorPointer -> color(Color::invisible);
 			}
-		}
-		*/
+		}*/
 		int tempX = numbers[k].loc.x;
 		int tempY = numbers[k].loc.y;
 		numbers[k].move(numbers[0].loc.x - tempX, numbers[0].loc.y - tempY);
 		numbers[0].move(tempX - numbers[0].loc.x, tempY - numbers[0].loc.y);
-		checked = false;
-	}
-	/*
+		valid_label();
+	}/*
 	else { // Blank Button
-
 		for (int i = 1; i < 16; ++i) {
 			if (num_labels[i] == 1) {
-				numbers[i].set_fill_color(Color::yellow);
+				colorPointer = numbers[i];
+				colorPointer -> color(Color::yellow);
+			}
+		}*/
+	}
+
+	redraw();
+}
+
+int Game_window::dist_calc(int k) {
+	return abs(numbers[k].loc.x - final_xs[0]) + abs(numbers[k].loc.y - final_ys[0]) +
+		abs(numbers[0].loc.x - final_xs[k]) + abs(numbers[0].loc.y - final_ys[k]);
+}
+
+void Game_window::hint() {
+	int suggestion;
+	int min_dist = -1;
+
+	for (int i = 1; i < 16; ++i) {
+		if (num_labels[i] == 1) {
+			if (min_dist == -1 || dist_calc(i) < min_dist) {
+				min_dist = dist_calc(i);
+				suggestion = i;
 			}
 		}
 	}
-	*/
 
-	redraw();
+	cout << suggestion << endl;
 }
 
 void Game_window::WriteFile()
@@ -287,9 +312,9 @@ void Game_window::DrawScores(String lim)
 		{
 			cout << x << endl;
 			vector<Text*> text;
-			Text* t = new Text( Point(505, 75), "HIGH SCORES");
+			Text* t = new Text(Point(505, 75), "HIGH SCORES");
 			t -> set_font_size(40);
-			Text* te = new Text( Point(555, 110), x);
+			Text* te = new Text(Point(555, 110), x);
 			te -> set_font_size(30);
 			text.push_back(t);
 			text.push_back(te);
@@ -302,7 +327,7 @@ void Game_window::DrawScores(String lim)
 				in >> one >> two;
 				res = one + "              " + two;
 				cout << res << endl;
-				Text* t = new Text( Point(555, place), res);
+				Text* t = new Text(Point(555, place), res);
 				t -> set_font_size(20);
 				text.push_back(t);
 				place += 50;
@@ -323,8 +348,9 @@ void Game_window::quit()
 
 int main() {
 	try {
-		if (H112 != 201708L)error("Error: incorrect std_lib_facilities_5.h version ",
-			H112);
+		if (H112 != 201708L) {
+			error("Error: incorrect std_lib_facilities_5.h version ", H112);
+		}
 
 		Game_window win{ Point(200, 200), 800, 600, "Game" };
 		return gui_main();
