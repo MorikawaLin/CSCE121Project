@@ -183,40 +183,40 @@ void Game_window::back() {
 }
 
 void Game_window::start() {
-	if(shown_rules)
-	{
-		for(int i=0;i<rule_text.size();i++)
-			detach(*rule_text[i]);
-		shown_rules=false;
-
-	}
 	if (lev < 1 || lev > 4) {
 		throw;
 	}
 	else {
 		clear();
 
-		/*for (int i = 0; i < 16; ++i) {
-			numbers.push_back(new Button{ Point{ xs.at(i), ys.at(i) }, 100, 100, num_labels.at(i), [](Address, Address pw) {reference_to<Game_window>(pw).check_and_move();} });
-			attach(numbers[numbers.size() - 1]);
-		}*/
+		if (numbers.size() == 0) {
+			/*for (int i = 0; i < 16; ++i) {
+				numbers.push_back(new Button{ Point{ xs.at(i), ys.at(i) }, 100, 100, num_labels.at(i), [](Address, Address pw) {reference_to<Game_window>(pw).check_and_move();} });
+				attach(numbers[numbers.size() - 1]);
+			}*/
 
-		numbers.push_back(new Button{ Point{ xs.at(0), ys.at(0) }, 100, 100, "", [](Address, Address pw) {reference_to<Game_window>(pw).check_and_move(0);} });
-		numbers.push_back(new Button{ Point{ xs.at(1), ys.at(1) }, 100, 100, "1", [](Address, Address pw) {reference_to<Game_window>(pw).check_and_move(1);} });
-		numbers.push_back(new Button{ Point{ xs.at(2), ys.at(2) }, 100, 100, "2", [](Address, Address pw) {reference_to<Game_window>(pw).check_and_move(2);} });
-		numbers.push_back(new Button{ Point{ xs.at(3), ys.at(3) }, 100, 100, "3", [](Address, Address pw) {reference_to<Game_window>(pw).check_and_move(3);} });
-		numbers.push_back(new Button{ Point{ xs.at(4), ys.at(4) }, 100, 100, "4", [](Address, Address pw) {reference_to<Game_window>(pw).check_and_move(4);} });
-		numbers.push_back(new Button{ Point{ xs.at(5), ys.at(5) }, 100, 100, "5", [](Address, Address pw) {reference_to<Game_window>(pw).check_and_move(5);} });
-		numbers.push_back(new Button{ Point{ xs.at(6), ys.at(6) }, 100, 100, "6", [](Address, Address pw) {reference_to<Game_window>(pw).check_and_move(6);} });
-		numbers.push_back(new Button{ Point{ xs.at(7), ys.at(7) }, 100, 100, "7", [](Address, Address pw) {reference_to<Game_window>(pw).check_and_move(7);} });
-		numbers.push_back(new Button{ Point{ xs.at(8), ys.at(8) }, 100, 100, "8", [](Address, Address pw) {reference_to<Game_window>(pw).check_and_move(8);} });
-		numbers.push_back(new Button{ Point{ xs.at(9), ys.at(9) }, 100, 100, "9", [](Address, Address pw) {reference_to<Game_window>(pw).check_and_move(9);} });
-		numbers.push_back(new Button{ Point{ xs.at(10), ys.at(10) }, 100, 100, "10", [](Address, Address pw) {reference_to<Game_window>(pw).check_and_move(10);} });
-		numbers.push_back(new Button{ Point{ xs.at(11), ys.at(11) }, 100, 100, "11", [](Address, Address pw) {reference_to<Game_window>(pw).check_and_move(11);} });
-		numbers.push_back(new Button{ Point{ xs.at(12), ys.at(12) }, 100, 100, "12", [](Address, Address pw) {reference_to<Game_window>(pw).check_and_move(12);} });
-		numbers.push_back(new Button{ Point{ xs.at(13), ys.at(13) }, 100, 100, "13", [](Address, Address pw) {reference_to<Game_window>(pw).check_and_move(13);} });
-		numbers.push_back(new Button{ Point{ xs.at(14), ys.at(14) }, 100, 100, "14", [](Address, Address pw) {reference_to<Game_window>(pw).check_and_move(14);} });
-		numbers.push_back(new Button{ Point{ xs.at(15), ys.at(15) }, 100, 100, "15", [](Address, Address pw) {reference_to<Game_window>(pw).check_and_move(15);} });
+			numbers.push_back(new Button{ Point{ xs.at(0), ys.at(0) }, 100, 100, "", [](Address, Address pw) {reference_to<Game_window>(pw).check_and_move(0);} });
+			numbers.push_back(new Button{ Point{ xs.at(1), ys.at(1) }, 100, 100, "1", [](Address, Address pw) {reference_to<Game_window>(pw).check_and_move(1);} });
+			numbers.push_back(new Button{ Point{ xs.at(2), ys.at(2) }, 100, 100, "2", [](Address, Address pw) {reference_to<Game_window>(pw).check_and_move(2);} });
+			numbers.push_back(new Button{ Point{ xs.at(3), ys.at(3) }, 100, 100, "3", [](Address, Address pw) {reference_to<Game_window>(pw).check_and_move(3);} });
+			numbers.push_back(new Button{ Point{ xs.at(4), ys.at(4) }, 100, 100, "4", [](Address, Address pw) {reference_to<Game_window>(pw).check_and_move(4);} });
+			numbers.push_back(new Button{ Point{ xs.at(5), ys.at(5) }, 100, 100, "5", [](Address, Address pw) {reference_to<Game_window>(pw).check_and_move(5);} });
+			numbers.push_back(new Button{ Point{ xs.at(6), ys.at(6) }, 100, 100, "6", [](Address, Address pw) {reference_to<Game_window>(pw).check_and_move(6);} });
+			numbers.push_back(new Button{ Point{ xs.at(7), ys.at(7) }, 100, 100, "7", [](Address, Address pw) {reference_to<Game_window>(pw).check_and_move(7);} });
+			numbers.push_back(new Button{ Point{ xs.at(8), ys.at(8) }, 100, 100, "8", [](Address, Address pw) {reference_to<Game_window>(pw).check_and_move(8);} });
+			numbers.push_back(new Button{ Point{ xs.at(9), ys.at(9) }, 100, 100, "9", [](Address, Address pw) {reference_to<Game_window>(pw).check_and_move(9);} });
+			numbers.push_back(new Button{ Point{ xs.at(10), ys.at(10) }, 100, 100, "10", [](Address, Address pw) {reference_to<Game_window>(pw).check_and_move(10);} });
+			numbers.push_back(new Button{ Point{ xs.at(11), ys.at(11) }, 100, 100, "11", [](Address, Address pw) {reference_to<Game_window>(pw).check_and_move(11);} });
+			numbers.push_back(new Button{ Point{ xs.at(12), ys.at(12) }, 100, 100, "12", [](Address, Address pw) {reference_to<Game_window>(pw).check_and_move(12);} });
+			numbers.push_back(new Button{ Point{ xs.at(13), ys.at(13) }, 100, 100, "13", [](Address, Address pw) {reference_to<Game_window>(pw).check_and_move(13);} });
+			numbers.push_back(new Button{ Point{ xs.at(14), ys.at(14) }, 100, 100, "14", [](Address, Address pw) {reference_to<Game_window>(pw).check_and_move(14);} });
+			numbers.push_back(new Button{ Point{ xs.at(15), ys.at(15) }, 100, 100, "15", [](Address, Address pw) {reference_to<Game_window>(pw).check_and_move(15);} });
+		}
+		else {
+			for (int i = 0; i < 16; ++i) {
+				numbers[i].move(xs[i] - numbers[i].loc.x, ys[i] - numbers[i].loc.y);
+			}
+		}
 
 		moves_remain = total_moves + 1;
 		valid_label();
@@ -265,26 +265,29 @@ void Game_window::expr()
 }
 
 void Game_window::valid_label() {
-	for (int i = 1; i < 16; ++i) {
+	correct_tiles = 0;
+
+	for (int i = 0; i < 16; ++i) {
 		if (abs(numbers[i].loc.x - numbers[0].loc.x) + abs(numbers[i].loc.y - numbers[0].loc.y) == 100) {
 			num_labels[i] = 1;
 		}
 		else {
 			num_labels[i] = 0;
 		}
+
+		if (numbers[i].loc.x == final_xs[i] && numbers[i].loc.y == final_ys[i]) {
+			++correct_tiles;
+		}
 	}
 
-	cout << --moves_remain << endl;
+	cout << "Moves Remain: " << --moves_remain << endl;
+	cout << "Corect Tiles: " << correct_tiles << endl;
 }
 
 void Game_window::display_score() {
 	clear();
 
-	for (int i = 0; i < 16; ++i) {
-		if (numbers[i].loc.x == final_xs[i] && numbers[i].loc.y == final_ys[i]) {
-			final_score += total_moves;
-		}
-	}
+	final_score = correct_tiles * total_moves;
 
 	// FIX ME!!! DISPLAY IN WINDOW
 	cout << "Your final score is " << final_score << endl;
@@ -312,8 +315,8 @@ void Game_window::check_and_move(int k) {
 		numbers[k].move(numbers[0].loc.x - tempX, numbers[0].loc.y - tempY);
 		numbers[0].move(tempX - numbers[0].loc.x, tempY - numbers[0].loc.y);
 		valid_label();
-	}/*
-	else { // Blank Button
+	}
+	/*else { // Blank Button
 		for (int i = 1; i < 16; ++i) {
 			if (num_labels[i] == 1) {
 				colorPointer = numbers[i];
@@ -442,7 +445,9 @@ string Game_window::DifficultyString(int l)
 		case 3:
 			return "Advanced"; 
 		case 4:
-			return "Expert";	
+			return "Expert";
+		default:
+			throw;	
 	}
 
 }
@@ -451,20 +456,18 @@ bool Game_window::CheckHighScores(int score, int lev)
 {
 	ifstream in;
 	in.open(FILE_NAME);
-	string diff=DifficultyString(lev);
-	string x="";
-	while(in >> x)
-	{
-		if(x==diff)
-		{
-			for(int i=0;i<5;i++)
+	string diff = DifficultyString(lev);
+	string x = "";
+	while(in >> x) {
+		if (x == diff) {
+			for(int i = 0; i < 5; ++i)
 			{
-				in>>x>>x;
-				if(stoi(x)<score)
+				in >> x >> x;
+				if (stoi(x) < score) {
 					return true;
+				}
 			}
 			return false;
-
 		}
 	}
 	return false;
@@ -483,8 +486,6 @@ void Game_window::NewHighScore()
 	cout<<"5";
 	//methodToGetRawScore();
 }
-
-
 
 void Game_window::quit()
 {
@@ -509,5 +510,3 @@ int main() {
 		return 2;
 	}
 }
-
-

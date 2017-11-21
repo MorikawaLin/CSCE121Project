@@ -16,14 +16,16 @@ private:
 	int lev;
 	int total_moves;
 	int moves_remain;
+	int correct_tiles;
 	int final_score;
+
 	vector<int> num_labels;
 	Vector<int> xs;
 	Vector<int> ys;
 	Vector<int> final_xs;
 	Vector<int> final_ys;
 	Vector_ref<Button> numbers;
-	Button* colorPointer;
+	// Button* colorPointer;
 
 	Button beginner;
 	Button intermediate;
@@ -38,6 +40,7 @@ private:
 	Button play_again_button;
 	Button final_quit_button;
 	Button quit_button;
+
 	bool shown_rules;
 
 	void clear();
@@ -72,6 +75,7 @@ private:
 	void DetermineScoreRange(int);
 	void DrawScores(String);
 	void NewHighScore();
+	
 	string DifficultyString(int);
 	bool CheckHighScores(int,int);
 
