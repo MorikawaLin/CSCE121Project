@@ -4,6 +4,7 @@
 Game_window::Game_window(Point xy, int w, int h, const string& title)
 	:Window{ xy, w, h, title },
 	lev{ 0 },
+	final_score{ 0 },
 	num_labels{2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 	final_xs{350, 50, 150, 250, 350, 50, 150, 250, 350, 50, 150, 250, 350, 50, 150, 250},
 	final_ys{450, 150, 150, 150, 150, 250, 250, 250, 250, 350, 350, 350, 350, 450, 450, 450},
@@ -16,6 +17,8 @@ Game_window::Game_window(Point xy, int w, int h, const string& title)
 	back_to_menu{ Point{ 570, 450 }, 200, 100, "Go Back To Menu", cb_back },
 	start_button{ Point{ 260, 430 }, 280, 140, "Start the Game!", cb_start },
 	hint_button{ Point{ 0, 0 }, 70, 20, "HINT", cb_hint },
+	play_again_button{ Point{ 570, 450 }, 200, 100, "Play Another Game", cb_back },
+	final_quit_button{ Point{ 30, 450 }, 200, 100, "Quit The Game", cb_quit },
 	quit_button{ Point{ x_max() - 70, 0 }, 70, 20, "Quit", cb_quit }/*,
 	Out_box rule_text{ Point{ 0, 0 }, 600, 500, "How to Play:\n\n"
 		"The game consists of a grid that holds a specific number of boxes depending on the difficulty chosen.\n"
@@ -161,6 +164,7 @@ void Game_window::start() {
 		numbers.push_back(new Button{ Point{ xs.at(14), ys.at(14) }, 100, 100, "14", [](Address, Address pw) {reference_to<Game_window>(pw).check_and_move(14);} });
 		numbers.push_back(new Button{ Point{ xs.at(15), ys.at(15) }, 100, 100, "15", [](Address, Address pw) {reference_to<Game_window>(pw).check_and_move(15);} });
 
+		moves_remain = total_moves + 1;
 		valid_label();
 
 		for (int i = 0; i < 16; ++i) {
@@ -171,7 +175,7 @@ void Game_window::start() {
 		attach(quit_button);
 	}
 
-	DetermineScoreRange(lev);
+	//DetermineScoreRange(lev);
 
 	redraw();
 }
@@ -179,6 +183,7 @@ void Game_window::start() {
 void Game_window::beg()
 {
 	lev = 1;
+	total_moves = 10;
 	xs = { 250, 50, 150, 250, 350, 50, 150, 350, 250, 50, 150, 350, 250, 50, 150, 350 };
 	ys = { 350, 150, 150, 150, 150, 250, 250, 250, 450, 350, 350, 450, 250, 450, 450, 350 };
 }
@@ -186,6 +191,7 @@ void Game_window::beg()
 void Game_window::inte()
 {	
 	lev = 2;
+	total_moves = 20;
 	xs = { 150, 50, 250, 250, 350, 50, 150, 350, 350, 50, 150, 350, 250, 50, 250, 150 };
 	ys = { 250, 150, 250, 150, 150, 250, 150, 350, 450, 350, 350, 250, 450, 450, 350, 450 };
 }
@@ -193,11 +199,15 @@ void Game_window::inte()
 void Game_window::adv()
 {
 	lev = 3;
+	total_moves = 40;
 }
 
 void Game_window::expr()
 {
 	lev = 4;
+	total_moves = 80;
+	xs = {50, 350, 350, 50, 50, 250, 250, 150, 150, 350, 250, 250, 150, 350, 150, 50};
+	ys = {150, 450, 350, 350, 450, 450, 350, 350, 450, 250, 250, 150, 150, 150, 250, 250};
 }
 
 void Game_window::valid_label() {
@@ -209,11 +219,32 @@ void Game_window::valid_label() {
 			num_labels[i] = 0;
 		}
 	}
+
+	cout << --moves_remain << endl;
+}
+
+void Game_window::display_score() {
+	clear();
+
+	for (int i = 0; i < 16; ++i) {
+		if (numbers[i].loc.x == final_xs[i] && numbers[i].loc.y == final_ys[i]) {
+			final_score += total_moves;
+		}
+	}
+
+	// FIX ME!!! DISPLAY IN WINDOW
+	cout << "Your final score is " << final_score << endl;
+
+	attach(play_again_button);
+	attach(final_quit_button);
+
+	redraw();
 }
 
 void Game_window::check_and_move(int k) {
 	if (num_labels[k] == 0) {
-		throw;
+		// FIX ME!!! DISPLAY IN WINDOW
+		cout << "This is not a valid tile to move." << endl;
 	}
 	else if (num_labels[k] == 1) {
 		/*for (int i = 1; i < 16; ++i) {
@@ -234,10 +265,15 @@ void Game_window::check_and_move(int k) {
 				colorPointer = numbers[i];
 				colorPointer -> color(Color::yellow);
 			}
-		}*/
-	}
+		}
+	}*/
 
-	redraw();
+	if (moves_remain == 0) {
+		display_score();
+	}
+	else {
+		redraw();
+	}
 }
 
 int Game_window::dist_calc(int k) {
@@ -258,11 +294,13 @@ void Game_window::hint() {
 		}
 	}
 
-	cout << suggestion << endl;
+	// FIX ME!!! DISPLAY IN WINDOW
+	cout << "The recommended tile number is: " << suggestion << endl;
 }
 
 void Game_window::WriteFile()
 {
+	// FIX ME!!! WRITE NEW SCORE IN
 	ofstream o;
 	o.open(FILE_NAME, ios::trunc);
 	vector<string> diffs = {"Beginner", "Intermediate", "Advanced", "Expert"};

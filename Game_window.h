@@ -12,6 +12,9 @@ struct Game_window : Graph_lib::Window
 	const string FILE_NAME{"HighScores.txt"};
 private:
 	int lev;
+	int total_moves;
+	int moves_remain;
+	int final_score;
 	vector<int> num_labels;
 	Vector<int> xs;
 	Vector<int> ys;
@@ -30,6 +33,8 @@ private:
 	Button back_to_menu;
 	Button start_button;
 	Button hint_button;
+	Button play_again_button;
+	Button final_quit_button;
 	Button quit_button;
 
 	void clear();
@@ -53,6 +58,7 @@ private:
 	void expr();
 
 	void valid_label();
+	void display_score();
 	void check_and_move(int);
 
 	int dist_calc(int);
