@@ -10,6 +10,8 @@ struct Game_window : Graph_lib::Window
 	Game_window(Point xy, int w, int h, const string& title);
 	int level() { return lev; }
 	const string FILE_NAME{"HighScores.txt"};
+	vector<Text*> rule_text;
+
 private:
 	int lev;
 	int total_moves;
@@ -36,6 +38,7 @@ private:
 	Button play_again_button;
 	Button final_quit_button;
 	Button quit_button;
+	bool shown_rules;
 
 	void clear();
 
@@ -68,8 +71,10 @@ private:
 	void WriteFile();
 	void DetermineScoreRange(int);
 	void DrawScores(String);
+	void NewHighScore();
+	string DifficultyString(int);
+	bool CheckHighScores(int,int);
 
 	static void cb_quit(Address, Address);
 	void quit();
 };
-

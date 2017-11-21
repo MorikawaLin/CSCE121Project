@@ -1,4 +1,4 @@
-
+ 
 #include "Game_window.h"
 
 Game_window::Game_window(Point xy, int w, int h, const string& title)
@@ -19,16 +19,8 @@ Game_window::Game_window(Point xy, int w, int h, const string& title)
 	hint_button{ Point{ 0, 0 }, 70, 20, "HINT", cb_hint },
 	play_again_button{ Point{ 570, 450 }, 200, 100, "Play Another Game", cb_back },
 	final_quit_button{ Point{ 30, 450 }, 200, 100, "Quit The Game", cb_quit },
-	quit_button{ Point{ x_max() - 70, 0 }, 70, 20, "Quit", cb_quit }/*,
-	Out_box rule_text{ Point{ 0, 0 }, 600, 500, "How to Play:\n\n"
-		"The game consists of a grid that holds a specific number of boxes depending on the difficulty chosen.\n"
-	    "Each box has numbers positioned out of order except for one that is empty.\n"
-		"The goal of the game is to correct the order of numbers by sliding boxes into the empty slot in as few moves as possible.\n"
-		"You can move the pieces by clicking on the peice you would like to move and then clicking on the space you would like to move the selected piece to.\n"
-		"You may not move a numbered peice into a flilled spot.\n"
-		"Each block moved will be counted as a move.\n"
-		"Good luck!!!"}
-	*/
+	quit_button{ Point{ x_max() - 70, 0 }, 70, 20, "Quit", cb_quit },
+	shown_rules{false}
 {
 	attach(choose_difficulty);
 	attach(start_button);
@@ -97,6 +89,13 @@ void Game_window::clear() {
 void Game_window::choose() {
 	clear();
 
+	if(shown_rules)
+	{
+		for(int i=0;i<rule_text.size();i++)
+			detach(*rule_text[i]);
+		shown_rules=false;
+	}
+
 	attach(beginner);
 	attach(intermediate);
 	attach(advanced);
@@ -114,17 +113,65 @@ void Game_window::choose() {
 void Game_window::rule() {
 	clear();
 
+	if(rule_text.size()==0)
+	{
+		String s1="How to Play: ";
+		String s2="The game consists of a grid that holds 16 of boxes.";
+		String s3="Each box has numbers positioned out of order.";
+		String s4="The goal is to correct the order of numbers in as few moves as possible.";
+		String s5="Move the pieces by clicking on the peice you would like to move.";
+		String s6="You may not move a numbered peice into a flilled spot. ";
+		String s7="Each block moved will be counted as one move.";
+		String s8="Good luck!!!";
+
+		Text* t1=new Text(Point(.35*x_max(),100),s1);
+		t1->set_font_size(40);
+		rule_text.push_back(t1);
+		attach(*rule_text[0]);
+	
+		Text* t2=new Text(Point(.18*x_max(),150),s2);
+		rule_text.push_back(t2);
+		Text* t3=new Text(Point(.21*x_max(),175),s3);
+		rule_text.push_back(t3);
+		Text* t4=new Text(Point(.05*x_max(),200),s4);
+		rule_text.push_back(t4);
+		Text* t5=new Text(Point(.097*x_max(),225),s5);
+		rule_text.push_back(t5);
+		Text* t6=new Text(Point(.15*x_max(),250),s6);
+		rule_text.push_back(t6);
+		Text* t7=new Text(Point(.2*x_max(),275),s7);
+		rule_text.push_back(t7);
+		Text* t8=new Text(Point(.43*x_max(),300),s8);
+		rule_text.push_back(t8);
+	}
+	
+	shown_rules=true;
+
+	attach(*rule_text[0]);
+	for(int i=1;i<rule_text.size();i++)
+	{
+		rule_text[i]->set_font_size(20);
+		attach(*rule_text[i]);
+	}
+
 	attach(back_to_menu);
 	attach(choose_difficulty);
 	attach(start_button);
 	attach(quit_button);
-	//attach(rule_text);
 
 	redraw();
+
 }
 
 void Game_window::back() {
 	clear();
+
+	if(shown_rules)
+	{
+		for(int i=0;i<rule_text.size();i++)
+			detach(*rule_text[i]);
+		shown_rules=false;
+	}
 
 	show_rule.move(570 - show_rule.loc.x, 0);
 	attach(choose_difficulty);
@@ -136,6 +183,13 @@ void Game_window::back() {
 }
 
 void Game_window::start() {
+	if(shown_rules)
+	{
+		for(int i=0;i<rule_text.size();i++)
+			detach(*rule_text[i]);
+		shown_rules=false;
+
+	}
 	if (lev < 1 || lev > 4) {
 		throw;
 	}
@@ -340,7 +394,6 @@ void Game_window::DetermineScoreRange(int l)
 
 void Game_window::DrawScores(String lim)
 {
-	cout << lim << endl;
 	ifstream in;
 	in.open(FILE_NAME);
 	string x = "";
@@ -348,7 +401,6 @@ void Game_window::DrawScores(String lim)
 	{
 		if(x == lim)
 		{
-			cout << x << endl;
 			vector<Text*> text;
 			Text* t = new Text(Point(505, 75), "HIGH SCORES");
 			t -> set_font_size(40);
@@ -379,6 +431,61 @@ void Game_window::DrawScores(String lim)
 	}
 }
 
+string Game_window::DifficultyString(int l)
+{
+	switch(l)
+	{
+		case 1:
+			return "Beginner";		
+		case 2:
+			return "Intermediate";
+		case 3:
+			return "Advanced"; 
+		case 4:
+			return "Expert";	
+	}
+
+}
+
+bool Game_window::CheckHighScores(int score, int lev)
+{
+	ifstream in;
+	in.open(FILE_NAME);
+	string diff=DifficultyString(lev);
+	string x="";
+	while(in >> x)
+	{
+		if(x==diff)
+		{
+			for(int i=0;i<5;i++)
+			{
+				in>>x>>x;
+				if(stoi(x)<score)
+					return true;
+			}
+			return false;
+
+		}
+	}
+	return false;
+}
+
+void Game_window::NewHighScore()
+{
+	cout<<"1";
+	In_box high(Point(x_max()*.5,y_max()*.5),40,200,"ENTER YOUR 3 CHAR INITIALS");
+	cout<<"2";
+	attach(high);
+	cout<<"3";
+	string initials=high.get_string();
+	cout<<"4";
+	cout<<initials;
+	cout<<"5";
+	//methodToGetRawScore();
+}
+
+
+
 void Game_window::quit()
 {
 	hide();
@@ -402,3 +509,5 @@ int main() {
 		return 2;
 	}
 }
+
+
