@@ -9,23 +9,25 @@ struct Game_window : Graph_lib::Window
 {
 	Game_window(Point xy, int w, int h, const string& title);
 	int level() { return lev; }
-	const string FILE_NAME{"HighScores.txt"};
+	const string FILE_NAME {"highScores.txt"};
 	vector<Text*> rule_text;
+	vector<Text*> highs;
+	vector<Text*> stats;
+	vector<Text*> statics;
+	vector<Text*> move_counter;
 
 private:
 	int lev;
 	int total_moves;
 	int moves_remain;
-	int correct_tiles;
 	int final_score;
-
 	vector<int> num_labels;
 	Vector<int> xs;
 	Vector<int> ys;
 	Vector<int> final_xs;
 	Vector<int> final_ys;
 	Vector_ref<Button> numbers;
-	// Button* colorPointer;
+	Button* colorPointer;
 
 	Button beginner;
 	Button intermediate;
@@ -40,8 +42,10 @@ private:
 	Button play_again_button;
 	Button final_quit_button;
 	Button quit_button;
-
+	Button enter_high;
+	In_box high;
 	bool shown_rules;
+	bool shown_highs;
 
 	void clear();
 
@@ -53,6 +57,8 @@ private:
 	void back();
 	static void cb_start(Address, Address);
 	void start();
+	static void cb_enter_high(Address, Address);
+	void EnterScore();
 
 	static void cb_beg(Address, Address);
 	void beg();
@@ -72,12 +78,10 @@ private:
 	void hint();
 
 	void WriteFile();
-	void DetermineScoreRange(int);
 	void DrawScores(String);
 	void NewHighScore();
-	
 	string DifficultyString(int);
-	bool CheckHighScores(int,int);
+	int CheckHighScores(int,int);
 
 	static void cb_quit(Address, Address);
 	void quit();
