@@ -15,6 +15,7 @@ struct Game_window : Graph_lib::Window
 	vector<Text*> stats;
 	vector<Text*> statics;
 	vector<Text*> move_counter;
+	vector<Text*> names;
 
 private:
 	int lev;
@@ -46,7 +47,9 @@ private:
 	In_box high;
 	bool shown_rules;
 	bool shown_highs;
+	bool shown_names;
 
+	void ShowTheTeam();
 	void clear();
 
 	static void cb_choose(Address, Address);
@@ -82,6 +85,7 @@ private:
 	void NewHighScore();
 	string DifficultyString(int);
 	int CheckHighScores(int,int);
+	void makeTheSwitch();
 
 	static void cb_quit(Address, Address);
 	void quit();

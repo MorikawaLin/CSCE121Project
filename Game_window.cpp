@@ -22,8 +22,10 @@ Game_window::Game_window(Point xy, int w, int h, const string& title)
 	enter_high{ Point{ 600, 240}, 70, 30, "Enter", cb_enter_high },
 	high{Point{600,200},70,30,"ENTER YOUR INITIALS"},
 	shown_rules{false},
-	shown_highs{false}
+	shown_highs{false},
+	shown_names{false}
 {
+	ShowTheTeam();
 	attach(choose_difficulty);
 	attach(start_button);
 	attach(show_rule);
@@ -95,6 +97,25 @@ void Game_window::clear() {
 	}
 }
 
+void Game_window::ShowTheTeam()
+{
+	shown_names=true;
+	string s="Pengchuan Lin  Eraj Mohiuddin  Cody Maffucci";
+	Text* t1=new Text(Point(170,200),"4x4 Square");
+	Text* t2=new Text(Point(x_max()/2,250),"By");
+	Text* t3=new Text(Point(70,300),s);
+	t1->set_font_size(70);
+	t2->set_font_size(20);
+	t3->set_font_size(30);
+	names.push_back(t1);
+	names.push_back(t2);
+	names.push_back(t3);
+	for(int i=0;i<names.size();i++)
+	{
+		attach(*names[i]);
+	}
+}
+
 void Game_window::choose() {
 	clear();
 
@@ -103,6 +124,12 @@ void Game_window::choose() {
 		for(int i=0;i<rule_text.size();i++)
 			detach(*rule_text[i]);
 		shown_rules=false;
+	}
+	if(shown_names)
+	{
+		for(int i=0;i<names.size();i++)
+			detach(*names[i]);
+		shown_names=false;
 	}
 
 	attach(beginner);
@@ -121,6 +148,14 @@ void Game_window::choose() {
 
 void Game_window::rule() {
 	clear();
+
+	if(shown_names)
+	{
+		for(int i=0;i<names.size();i++)
+			detach(*names[i]);
+		shown_names=false;
+	}
+
 
 	if(rule_text.size()==0)
 	{
@@ -174,6 +209,7 @@ void Game_window::rule() {
 
 void Game_window::back() {
 	clear();
+	ShowTheTeam();
 
 	if(shown_rules)
 	{
@@ -207,6 +243,14 @@ void Game_window::start() {
 	statics.push_back(move_count);
 	attach(*statics[0]);
 	attach(*statics[1]);
+	
+	if(shown_names)
+	{
+		for(int i=0;i<names.size();i++)
+			detach(*names[i]);
+		shown_names=false;
+	}
+
 	
 	if(shown_rules)
 	{
@@ -431,7 +475,7 @@ void Game_window::WriteFile()
 		o<<diffs[i]<<endl;
 		for(int j = 0; j < 5; ++j)
 		{
-			o<<"---"<<endl; //Dont add spaces. 
+			o<<"----"<<endl; //Dont add spaces. 
 			o<<"----"<<endl;
 		}
 		o<<endl;
@@ -457,6 +501,7 @@ void Game_window::DrawScores(string lim) {
 			for(int i = 0; i < 5; ++i) {
 				in >> one >> two;
 				res = one + "             " + two;
+				cout<<res<<endl;
 				Text* t = new Text(Point(420, place), res);
 				t -> set_font_size(40);
 				highs.push_back(t);
@@ -520,9 +565,7 @@ void Game_window::NewHighScore()
 	attach(enter_high);
 }
 
-void Game_window::EnterScore()
-{
-	int count=1;
+void Game_window::EnterScore() {
 	detach(high);
 	detach(enter_high);
 	string initials=high.get_string();
@@ -531,22 +574,32 @@ void Game_window::EnterScore()
 	ifstream in(FILE_NAME);
 	ofstream out("TEMP.txt");
 	string diff=DifficultyString(lev);
-	string x="";
+	string x,y;
 	while(in>>x) {
 		if(x==diff) {
-			while(count<stop) {
-				in>>x; out<<x;
-				in>>x; out<<x<<endl;
+				out<<x<<endl;
+			for(int i=1;i<=5;i++) {
+				if(stop==i)
+					out<<initials<<endl<<to_string(final_score)<<endl;
+				else {
+					in>>x;
+					out<<x<<endl;
+				}
 			}
-			out<<x<<endl;
-			in>>x>>x;
-			out<<initials<<endl<<final_score<<endl;
 		}
-		x+="\n";
-		out<<x;
+		else
+		{
+			in>>x;
+			out<<x<<endl;
+		}
 	}
 	out.close();
 	in.close();
+	makeTheSwitch();
+}
+
+void Game_window::makeTheSwitch()
+{
 	rename("TEMP.txt","highScores.txt");
 	std::remove("TEMP.txt");
 	DrawScores(DifficultyString(lev));
