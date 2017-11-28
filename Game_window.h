@@ -5,7 +5,7 @@
 #include "Graph.h"
 #include "GUI.h"
 
-struct Game_window : Graph_lib::Window
+struct Game_window : public Graph_lib::Window
 {
 	Game_window(Point xy, int w, int h, const string& title);
 	int level() { return lev; }
@@ -18,17 +18,17 @@ struct Game_window : Graph_lib::Window
 	vector<Text*> names;
 
 private:
-	int lev;
+	int lev {0};
 	int total_moves;
 	int moves_remain;
-	int final_score;
-	vector<int> num_labels;
-	Vector<int> xs;
-	Vector<int> ys;
-	Vector<int> final_xs;
-	Vector<int> final_ys;
+	int not_correct_tile {0};
+	int final_score {0};
+	vector<int> num_labels {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+	vector<int> xs;
+	vector<int> ys;
+	vector<int> final_xs {350, 50, 150, 250, 350, 50, 150, 250, 350, 50, 150, 250, 350, 50, 150, 250};
+	vector<int> final_ys {450, 150, 150, 150, 150, 250, 250, 250, 250, 350, 350, 350, 350, 450, 450, 450};
 	Vector_ref<Button> numbers;
-	Button* colorPointer;
 
 	Button beginner;
 	Button intermediate;
@@ -45,9 +45,11 @@ private:
 	Button quit_button;
 	Button enter_high;
 	In_box high;
-	bool shown_rules;
-	bool shown_highs;
-	bool shown_names;
+
+	bool shown_rules {false};
+	bool shown_highs {false};
+	bool shown_names {false};
+	bool button_exist {false};
 
 	void ShowTheTeam();
 	void removeRules();
@@ -61,8 +63,11 @@ private:
 	void rule();
 	static void cb_back(Address, Address);
 	void back();
+
+	void create_button();
 	static void cb_start(Address, Address);
 	void start();
+
 	static void cb_enter_high(Address, Address);
 	void EnterScore();
 
