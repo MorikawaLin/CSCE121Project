@@ -50,6 +50,9 @@ private:
 	bool shown_names;
 
 	void ShowTheTeam();
+	void removeRules();
+	void removeNames();
+	void removeHighs();
 	void clear();
 
 	static void cb_choose(Address, Address);
