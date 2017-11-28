@@ -1,6 +1,6 @@
 #include "Game_window.h"
 
-Game_window::Game_window(Point xy, int w, int h, const string& title)
+Game_window::Game_window(Point xy, int w, int h, const string& title) //22
 	:Window{ xy, w, h, title },
 	beginner{ Point{ 75, 50 }, 300, 100, "Beginner", cb_beg },
 	intermediate{ Point{ 425, 50 }, 300, 100, "Intermediate", cb_inte },
@@ -88,7 +88,7 @@ void Game_window::clear() { //3
 	}
 }
 
-void Game_window::ShowTheTeam() { //12
+void Game_window::ShowTheTeam() { //13
 	shown_names=true;
 	string s="Pengchuan Lin  Eraj Mohiuddin  Cody Maffucci";
 	Text* t1=new Text(Point(170,200),"4x4 Square");
@@ -104,7 +104,7 @@ void Game_window::ShowTheTeam() { //12
 		attach(*names[i]);
 }
 
-void Game_window::choose() {
+void Game_window::choose() { //27
 	clear();
 
 	if(shown_rules)
@@ -134,7 +134,7 @@ void Game_window::choose() {
 	redraw();
 }
 
-void Game_window::rule() {
+void Game_window::rule() { //57
 	clear();
 
 	if(shown_names)
@@ -192,7 +192,6 @@ void Game_window::rule() {
 	attach(quit_button);
 
 	redraw();
-
 }
 
 void Game_window::removeRules() { //5
@@ -220,7 +219,7 @@ void Game_window::removeNames() { //5
 	}
 }
 
-void Game_window::back() { //9
+void Game_window::back() { //10
 	clear();
 	ShowTheTeam();
 	removeRules();
@@ -233,7 +232,7 @@ void Game_window::back() { //9
 	redraw();
 }
 
-void Game_window::create_button() {
+void Game_window::create_button() { //23
 	if (!button_exist) {
 		numbers.push_back(new Button{ Point{ xs.at(0), ys.at(0) }, 100, 100, "", [](Address, Address pw) {reference_to<Game_window>(pw).check_and_move(0);} });
 		numbers.push_back(new Button{ Point{ xs.at(1), ys.at(1) }, 100, 100, "1", [](Address, Address pw) {reference_to<Game_window>(pw).check_and_move(1);} });
@@ -259,7 +258,7 @@ void Game_window::create_button() {
 	}
 }
 
-void Game_window::start() { //Too much to count! suggest moving buttons to a function
+void Game_window::start() { //25
 	Text* hint=new Text(Point(50,50),"HINT");
 	hint->set_font_size(20);
 	statics.push_back(hint);
@@ -270,25 +269,20 @@ void Game_window::start() { //Too much to count! suggest moving buttons to a fun
 	attach(*statics[1]);
 	removeNames();
 	removeRules();
-	if (lev < 1 || lev > 4) {
-		throw;
+	clear();
+	final_score = 0;
+	moves_remain = total_moves + 1;
+	create_button();
+	for(int i=0;i<=total_moves;++i) {
+		Text* move=new Text(Point(500,375),""+to_string(i));
+		move->set_font_size(200);
+		move_counter.push_back(move);
 	}
-	else {
-		clear();
-		final_score = 0;
-		moves_remain = total_moves + 1;
-		create_button();
-		for(int i=0;i<=total_moves;++i) {
-			Text* move=new Text(Point(500,375),""+to_string(i));
-			move->set_font_size(200);
-			move_counter.push_back(move);
-		}
-		for (int i = 0; i < 16; ++i)
-			attach(numbers[i]);
-		attach(hint_button);
-		attach(quit_button);
-		valid_label();
-	}
+	for (int i = 0; i < 16; ++i)
+		attach(numbers[i]);
+	attach(hint_button);
+	attach(quit_button);
+	valid_label();
 	redraw();
 }
 
@@ -306,8 +300,7 @@ void Game_window::inte() { //4
 	ys = { 250, 150, 250, 150, 150, 250, 150, 350, 450, 350, 350, 250, 450, 450, 350, 450 };
 }
 
-void Game_window::adv()
-{
+void Game_window::adv() { //4
 	lev = 3;
 	total_moves = 40;
 	xs = { 150, 250, 150, 50, 50, 250, 350, 250, 150, 50, 350, 350, 250, 50, 150, 350};
@@ -321,7 +314,9 @@ void Game_window::expr() { //4
 	ys = {150, 450, 350, 350, 450, 450, 350, 350, 450, 250, 250, 150, 150, 150, 250, 250};
 }
 
-void Game_window::valid_label() { //9
+void Game_window::valid_label() { //23
+	correct_tile = 0;
+	incorrect_tile = 0;
 	for (int i = 0; i < 16; ++i) {
 		if (abs(numbers[i].loc.x - numbers[0].loc.x) + abs(numbers[i].loc.y - numbers[0].loc.y) == 100) {
 			num_labels[i] = 1;
@@ -330,20 +325,22 @@ void Game_window::valid_label() { //9
 			num_labels[i] = 0;
 		}
 		if (numbers[i].loc.x == final_xs[i] && numbers[i].loc.y == final_ys[i]) {
+			++correct_tile;
 			numbers[i].pw->color(Color::green);
 		}
 		else {
-			++not_correct_tile;
-			cout << not_correct_tile << endl; // GO ON SCREEN
+			++incorrect_tile;
 			numbers[i].pw->color(fl_rgb_color(191,10,48)); 
 		}
 	}
+	cout << "Number of correct tiles: " << correct_tile << endl; // GO ON SCREEN
+	cout << "Number of incorrect tiles: " << incorrect_tile << endl; // GO ON SCREEN
 	num_labels[0] = -1;
 	--moves_remain;
 	attach(*move_counter[moves_remain]);
 }
 
-void Game_window::display_score() { //22
+void Game_window::display_score() { //23
 	clear();
 	detach(*statics[0]);
 	detach(*statics[1]);
@@ -364,12 +361,10 @@ void Game_window::display_score() { //22
 		NewHighScore();
 	else 
 		DrawScores(DifficultyString(lev));
-	attach(play_again_button);
-	attach(final_quit_button);
 	redraw();
 }
 
-void Game_window::check_and_move(int k) { //TOO LONG
+void Game_window::check_and_move(int k) { //34
 	for(int i=0;i<stats.size();i++)
 		detach(*stats[i]);
 	stats.erase(stats.begin(),stats.end());
@@ -411,7 +406,7 @@ int Game_window::dist_calc(int k) { //2
 		abs(numbers[0].loc.x - final_xs[k]) + abs(numbers[0].loc.y - final_ys[k]);
 }
 
-void Game_window::hint() { //18
+void Game_window::hint() { //19
 	int suggestion;
 	int min_dist = -1;
 	for (int i = 1; i < 16; ++i) {
@@ -448,7 +443,7 @@ void Game_window::WriteFile() { //13
 	o.close();
 }
 
-void Game_window::DrawScores(string lim) { //26
+void Game_window::DrawScores(string lim) { //27
 	shown_highs=true;
 	ifstream in(FILE_NAME);
 	string x;
@@ -544,6 +539,8 @@ void Game_window::EnterScore() { //24
 			out<<x<<endl;
 	}
 	makeTheSwitch();
+	attach(play_again_button);
+	attach(final_quit_button);
 }
 
 void Game_window::makeTheSwitch() { //3

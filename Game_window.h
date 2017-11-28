@@ -18,10 +18,11 @@ struct Game_window : public Graph_lib::Window
 	vector<Text*> names;
 
 private:
-	int lev {0};
+	int lev {1};
 	int total_moves;
 	int moves_remain;
-	int not_correct_tile {0};
+	int correct_tile {0};
+	int incorrect_tile {0};
 	int final_score {0};
 	vector<int> num_labels {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 	vector<int> xs;
