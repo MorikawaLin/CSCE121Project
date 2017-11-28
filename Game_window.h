@@ -24,6 +24,7 @@ private:
 	int correct_tile {0};
 	int incorrect_tile {0};
 	int final_score {0};
+	int random_puzzle;
 	vector<int> num_labels {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 	vector<int> xs;
 	vector<int> ys;
