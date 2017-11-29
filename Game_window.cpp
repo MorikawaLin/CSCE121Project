@@ -104,22 +104,11 @@ void Game_window::ShowTheTeam() { //13
 		attach(*names[i]);
 }
 
-void Game_window::choose() { //27
+void Game_window::choose() { //13
 	clear();
 
-	if(shown_rules)
-	{
-		for(int i=0;i<rule_text.size();i++)
-			detach(*rule_text[i]);
-		shown_rules=false;
-	}
-	if(shown_names)
-	{
-		for(int i=0;i<names.size();i++)
-			detach(*names[i]);
-		shown_names=false;
-	}
-
+	removeRules();
+	removeNames();
 	attach(beginner);
 	attach(intermediate);
 	attach(advanced);
@@ -134,63 +123,51 @@ void Game_window::choose() { //27
 	redraw();
 }
 
-void Game_window::rule() { //57
+void Game_window::makeRules() { //21
+	String s2 = "Each level consists of a grid that holds randomly positioned tiles.";
+ 	String s3 = "The goal is to correct the order of numbers in as few moves as possible.";
+ 	String s4 = "Tile colors: Green = correct. Red = incorrect. Yellow = possible move.";
+ 	String s5 = "Move pieces into blank by clicking on the intended tile. ";
+ 	String s6 = "You may not move a numbered tile into a numbered spot. ";
+ 	String s7 = "Each block moved will be counted as one move. Use 'Hint' to get help.";
+ 	String s8 = "Good luck!!!";
+	Text* t2=new Text(Point(.097*x_max(),150),s2);
+	rule_text.push_back(t2);
+	Text* t3=new Text(Point(.05*x_max(),175),s3);
+	rule_text.push_back(t3);
+	Text* t4=new Text(Point(.073*x_max(),200),s4);
+	rule_text.push_back(t4);
+	Text* t5=new Text(Point(.15*x_max(),225),s5);
+	rule_text.push_back(t5);
+	Text* t6=new Text(Point(.135*x_max(),250),s6);
+	rule_text.push_back(t6);
+	Text* t7=new Text(Point(.06*x_max(),275),s7);
+	rule_text.push_back(t7);
+	Text* t8=new Text(Point(.43*x_max(),300),s8);
+	rule_text.push_back(t8);
+}
+
+void Game_window::rule() { //21
 	clear();
-
-	if(shown_names)
-	{
-		for(int i=0;i<names.size();i++)
-			detach(*names[i]);
-		shown_names=false;
-	}
-
-
-	if(rule_text.size()==0)
-	{
+	removeNames();
+	if(rule_text.size()==0) {
 		String s1="How to Play: ";
-		String s2="The game consists of a grid that holds 16 of boxes.";
-		String s3="Each box has numbers positioned out of order.";
-		String s4="The goal is to correct the order of numbers in as few moves as possible.";
-		String s5="Move the pieces by clicking on the peice you would like to move.";
-		String s6="You may not move a numbered peice into a flilled spot. ";
-		String s7="Each block moved will be counted as one move.";
-		String s8="Good luck!!!";
-
 		Text* t1=new Text(Point(.35*x_max(),100),s1);
 		t1->set_font_size(40);
 		rule_text.push_back(t1);
 		attach(*rule_text[0]);
-	
-		Text* t2=new Text(Point(.18*x_max(),150),s2);
-		rule_text.push_back(t2);
-		Text* t3=new Text(Point(.21*x_max(),175),s3);
-		rule_text.push_back(t3);
-		Text* t4=new Text(Point(.05*x_max(),200),s4);
-		rule_text.push_back(t4);
-		Text* t5=new Text(Point(.097*x_max(),225),s5);
-		rule_text.push_back(t5);
-		Text* t6=new Text(Point(.15*x_max(),250),s6);
-		rule_text.push_back(t6);
-		Text* t7=new Text(Point(.2*x_max(),275),s7);
-		rule_text.push_back(t7);
-		Text* t8=new Text(Point(.43*x_max(),300),s8);
-		rule_text.push_back(t8);
+		makeRules();
 	}
-	
 	shown_rules=true;
-
 	attach(*rule_text[0]);
-	for(int i=1;i<rule_text.size();i++)
-	{
+	for(int i=1;i<rule_text.size();i++) {
 		rule_text[i]->set_font_size(20);
 		attach(*rule_text[i]);
 	}
-
 	attach(back_to_menu);
 	attach(choose_difficulty);
 	attach(start_button);
 	attach(quit_button);
-
 	redraw();
 }
 
@@ -258,35 +235,58 @@ void Game_window::create_button() { //23
 	}
 }
 
-void Game_window::start() { //25
+void Game_window::fillStatics() { //12
 	Text* hint=new Text(Point(50,50),"HINT");
 	hint->set_font_size(20);
 	statics.push_back(hint);
-	Text* move_count=new Text(Point(500,200),"MOVE COUNTER");
+	Text* move_count=new Text(Point(500,400),"MOVE COUNTER");
 	move_count->set_font_size(30);
 	statics.push_back(move_count);
+	Text* incorrect_count=new Text(Point(500,200),"INCORRECT TILES");
+	incorrect_count->set_font_size(30);
+	statics.push_back(incorrect_count);
+
 	attach(*statics[0]);
 	attach(*statics[1]);
+	attach(*statics[2]);
+}
+
+void Game_window::start() { //16	
 	removeNames();
 	removeRules();
+	fillStatics();
 	clear();
 	final_score = 0;
 	moves_remain = total_moves + 1;
 	create_button();
-	for(int i=0;i<=total_moves;++i) {
-		Text* move=new Text(Point(500,375),""+to_string(i));
-		move->set_font_size(200);
-		move_counter.push_back(move);
-	}
-	for (int i = 0; i < 16; ++i)
-		attach(numbers[i]);
+	move_counter.clear();
+	fillMovesRemaining();
+	fillIncorrects();
+		for (int i = 0; i < 16; ++i)
+			attach(numbers[i]);
 	attach(hint_button);
 	attach(quit_button);
 	valid_label();
 	redraw();
 }
 
-void Game_window::beg() { //4
+void Game_window::fillMovesRemaining() { //5
+	for(int i=0;i<=total_moves;++i) {
+		Text* move=new Text(Point(500,475),""+to_string(i));
+		move->set_font_size(100);
+		move_counter.push_back(move);
+	}
+}
+
+void Game_window::fillIncorrects() { //5
+	for(int i=1;i<=15;++i) {
+		Text* incor=new Text(Point(500,275),""+to_string(i));
+		incor->set_font_size(100);
+		incorrects.push_back(incor);
+	}
+}
+	
+void Game_window::beg() { //19
 	lev = 1;
 	total_moves = 10;
 	random_puzzle = rand() % 4 + 1;
@@ -309,7 +309,7 @@ void Game_window::beg() { //4
 	}
 }
 
-void Game_window::inte() { //4	
+void Game_window::inte() { //19
 	lev = 2;
 	total_moves = 20;
 	random_puzzle = rand() % 4 + 1;
@@ -332,7 +332,7 @@ void Game_window::inte() { //4
 	}
 }
 
-void Game_window::adv() { //4
+void Game_window::adv() { //19
 	lev = 3;
 	total_moves = 40;
 	random_puzzle = rand() % 4 + 1;
@@ -355,7 +355,7 @@ void Game_window::adv() { //4
 	}
 }
 
-void Game_window::expr() { //4
+void Game_window::expr() { //19
 	lev = 4;
 	total_moves = 80;
 	switch (random_puzzle) {
@@ -396,6 +396,7 @@ void Game_window::valid_label() { //23
 			numbers[i].pw->color(fl_rgb_color(255,36,0)); 
 		}
 	}
+	attach(*incorrects[incorrect_tile-2]);
 	cout << "Number of correct tiles: " << correct_tile << endl; // GO ON SCREEN
 	cout << "Number of incorrect tiles: " << incorrect_tile << endl; // GO ON SCREEN
 	num_labels[0] = -1;
@@ -403,10 +404,15 @@ void Game_window::valid_label() { //23
 	attach(*move_counter[moves_remain]);
 }
 
-void Game_window::display_score() { //23
-	clear();
+void Game_window::dettachStatics() { //3
 	detach(*statics[0]);
 	detach(*statics[1]);
+	detach(*statics[2]);
+}
+
+void Game_window::display_score() { //23
+	clear();
+	dettachStatics();
 	for (int i = 0; i < 16; ++i) {
 		if (numbers[i].loc.x == final_xs[i] && numbers[i].loc.y == final_ys[i]) 
 			final_score += total_moves;
@@ -427,7 +433,15 @@ void Game_window::display_score() { //23
 	redraw();
 }
 
-void Game_window::check_and_move(int k) { //34
+void Game_window::dettachNums() { //4
+	for(int i=0;i<move_counter.size();i++) 
+		detach(*move_counter[i]);
+	for(int i=0;i<incorrects.size();i++)
+		detach(*incorrects[i]);
+}
+
+void Game_window::check_and_move(int k) { //34 still too long and I will break it
+	detach(*incorrects[incorrect_tile-2]);
 	for(int i=0;i<stats.size();i++)
 		detach(*stats[i]);
 	stats.erase(stats.begin(),stats.end());
@@ -443,7 +457,7 @@ void Game_window::check_and_move(int k) { //34
 		int tempY = numbers[k].loc.y;
 		numbers[k].move(numbers[0].loc.x - tempX, numbers[0].loc.y - tempY);
 		numbers[0].move(tempX - numbers[0].loc.x, tempY - numbers[0].loc.y);
-		detach(*move_counter[moves_remain]);
+		dettachNums();		
 		valid_label();
 	}
 	else {
@@ -455,11 +469,11 @@ void Game_window::check_and_move(int k) { //34
 	}
 
 	if (moves_remain == 0) {
-		detach(*move_counter[moves_remain]);
+		dettachNums();
 		display_score();
 	}
 	else {
-		detach(*move_counter[moves_remain-1]);	
+		detach(*move_counter[moves_remain-1]);
 		redraw();
 	}
 }
@@ -506,19 +520,13 @@ void Game_window::WriteFile() { //13
 	o.close();
 }
 
-void Game_window::DrawScores(string lim) { //27
+void Game_window::DrawScores(string lim) { //21
 	shown_highs=true;
 	ifstream in(FILE_NAME);
-	string x;
+	string x,one,two,res;
 	while(in>>x) {
 		if(x==lim) {
-			Text* t = new Text(Point(350, 75), "HIGH SCORES");
-			t -> set_font_size(60);
-			Text* te = new Text(Point(450, 130), x);
-			te -> set_font_size(50);
-			highs.push_back(t);
-			highs.push_back(te);
-			string one,two,res;
+			addTheTop();
 			int place = 200;
 			for(int i = 0; i < 5; ++i) {
 				in >> one >> two;
@@ -530,10 +538,20 @@ void Game_window::DrawScores(string lim) { //27
 			}
 			for(int i = 2; i < highs.size(); ++i) 
 				attach(*highs[i]);
-			break;
 		}
 	}
+	attach(play_again_button);
+	attach(final_quit_button);
 	redraw();
+}
+
+void Game_window::addTheTop() { //6
+	Text* t = new Text(Point(350, 75), "HIGH SCORES");
+	t -> set_font_size(60);
+	Text* te = new Text(Point(450, 130), DifficultyString(lev));
+	te -> set_font_size(50);
+	highs.push_back(t);
+	highs.push_back(te);
 }
 
 string Game_window::DifficultyString(int l) { //10
@@ -558,8 +576,8 @@ int Game_window::CheckHighScores(int score, int lev) { //20
 		if(x==diff) {
 			for(int i=1;i<=5;i++) {
 				in>>x>>x;
-				cout<<x; // NEED TO GO
-				if(x.compare(to_string(score))<1) {
+				int comp=atoi(x.c_str());
+				if(comp<score) {
 					in.close();
 					return i;
 				}
@@ -602,14 +620,14 @@ void Game_window::EnterScore() { //24
 			out<<x<<endl;
 	}
 	makeTheSwitch();
-	attach(play_again_button);
-	attach(final_quit_button);
 }
 
-void Game_window::makeTheSwitch() { //3
+void Game_window::makeTheSwitch() { //5
 	rename("TEMP.txt","highScores.txt");
 	std::remove("TEMP.txt");
 	DrawScores(DifficultyString(lev));
+	attach(play_again_button);
+	attach(final_quit_button);
 }
 
 void Game_window::quit() { //1
@@ -633,5 +651,4 @@ int main() { //15
 		return 2;
 	}
 }
-
 

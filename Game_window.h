@@ -15,6 +15,7 @@ struct Game_window : public Graph_lib::Window
 	vector<Text*> stats;
 	vector<Text*> statics;
 	vector<Text*> move_counter;
+	vector<Text*> incorrects;
 	vector<Text*> names;
 
 private:
@@ -57,7 +58,14 @@ private:
 	void removeRules();
 	void removeNames();
 	void removeHighs();
+	void makeRules();
+	void fillIncorrects();
+	void fillMovesRemaining();
+	void fillStatics();
 	void clear();
+
+	void dettachNums();
+	void dettachStatics();
 
 	static void cb_choose(Address, Address);
 	void choose();
@@ -92,6 +100,7 @@ private:
 
 	void WriteFile();
 	void DrawScores(String);
+	void addTheTop();
 	void NewHighScore();
 	string DifficultyString(int);
 	int CheckHighScores(int,int);
