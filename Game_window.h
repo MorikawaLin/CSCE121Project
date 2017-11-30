@@ -63,6 +63,7 @@ private:
 	void fillMovesRemaining();
 	void fillStatics();
 	void checkConditions(int);
+	void checkIncorrectNum();
 	void clear();
 
 	void dettachNums();

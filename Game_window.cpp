@@ -380,7 +380,7 @@ void Game_window::expr() { //19
 	}
 }
 
-void Game_window::valid_label() { //23
+void Game_window::valid_label() { //22
 	correct_tile = 0;
 	incorrect_tile = 0;
 	for (int i = 0; i < 16; ++i) {
@@ -392,19 +392,26 @@ void Game_window::valid_label() { //23
 		}
 		if (numbers[i].loc.x == final_xs[i] && numbers[i].loc.y == final_ys[i]) {
 			++correct_tile;
-			numbers[i].pw->color(Color::green);
+			numbers[i].pw->color(fl_rgb_color(152,251,152));
 		}
 		else {
 			++incorrect_tile;
-			numbers[i].pw->color(fl_rgb_color(255,36,0)); 
+			numbers[i].pw->color(fl_rgb_color(255,76,76)); 
 		}
 	}
-	attach(*incorrects[incorrect_tile-2]);
-	cout << "Number of correct tiles: " << correct_tile << endl; // GO ON SCREEN
-	cout << "Number of incorrect tiles: " << incorrect_tile << endl; // GO ON SCREEN
+	checkIncorrectNum();
 	num_labels[0] = -1;
 	--moves_remain;
 	attach(*move_counter[moves_remain]);
+}
+
+void Game_window::checkIncorrectNum() { //6
+	if(incorrect_tile==0)
+		dettachNums();
+	else if(incorrect_tile==1)
+		attach(*incorrects[incorrect_tile]);
+	else
+		attach(*incorrects[incorrect_tile-2]);
 }
 
 void Game_window::dettachStatics() { //3
@@ -413,7 +420,7 @@ void Game_window::dettachStatics() { //3
 	detach(*statics[2]);
 }
 
-void Game_window::display_score() { //23
+void Game_window::display_score() { //20
 	clear();
 	dettachStatics();
 	for (int i = 0; i < 16; ++i) {
@@ -443,7 +450,7 @@ void Game_window::dettachNums() { //4
 		detach(*incorrects[i]);
 }
 
-void Game_window::dettachStats() {
+void Game_window::dettachStats() { //3
 	for(int i=0;i<stats.size();i++)
 		detach(*stats[i]);
 	stats.erase(stats.begin(),stats.end());
@@ -530,7 +537,7 @@ void Game_window::WriteFile() { //13
 	o.close();
 }
 
-void Game_window::DrawScores(string lim) { //21
+void Game_window::DrawScores(string lim) { //22
 	shown_highs=true;
 	ifstream in(FILE_NAME);
 	string x,one,two,res;
@@ -577,7 +584,7 @@ string Game_window::DifficultyString(int l) { //10
 	}
 }
 
-int Game_window::CheckHighScores(int score, int lev) { //20
+int Game_window::CheckHighScores(int score, int lev) { //17
 	ifstream in;
 	in.open(FILE_NAME);
 	string diff=DifficultyString(lev);
@@ -658,4 +665,3 @@ int main() { //15
 		return 2;
 	}
 }
-
