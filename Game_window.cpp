@@ -1,6 +1,6 @@
 #include "Game_window.h"
 
-Game_window::Game_window(Point xy, int w, int h, const string& title) //22
+Game_window::Game_window(Point xy, int w, int h, const string& title) //22  constructor that creates all the buttons and splash screen.
 	:Window{ xy, w, h, title },
 	beginner{ Point{ 75, 50 }, 300, 100, "Beginner", cb_beg },
 	intermediate{ Point{ 425, 50 }, 300, 100, "Intermediate", cb_inte },
@@ -26,7 +26,7 @@ Game_window::Game_window(Point xy, int w, int h, const string& title) //22
 	WriteFile();
 }
 
-void Game_window::cb_choose(Address, Address pw)
+void Game_window::cb_choose(Address, Address pw) //beginning of many callbacks to each button.
 {
 	reference_to<Game_window>(pw).choose();
 }
@@ -82,13 +82,13 @@ void Game_window::cb_enter_high(Address, Address pw)
 }
 
 
-void Game_window::clear() { //3
+void Game_window::clear() { //3  removes all the buttons from the screen.
 	for (int i = 0; i < children(); ++i) {
 		child(i)->hide();
 	}
 }
 
-void Game_window::ShowTheTeam() { //13
+void Game_window::ShowTheTeam() { //13 creates and attaches all names, titles, and game title.
 	shown_names=true;
 	string s="Pengchuan Lin  Eraj Mohiuddin  Cody Maffucci";
 	Text* t1=new Text(Point(200,200),"4x4 Square");
@@ -107,8 +107,8 @@ void Game_window::ShowTheTeam() { //13
 		attach(*names[i]);
 }
 
-void Game_window::choose() { //13
-	clear();
+void Game_window::choose() { //13 the callback method attached to the choose difficulty button.
+	clear();		// attachs all difficulty buttons and others to the screen.
 
 	removeRules();
 	removeNames();
@@ -126,10 +126,10 @@ void Game_window::choose() { //13
 	redraw();
 }
 
-void Game_window::makeRules() { //21
+void Game_window::makeRules() { //21 creates the strings of the rules. An extension of rule().
 	String s2 = "Each level consists of a grid that holds randomly positioned tiles.";
  	String s3 = "The goal is to correct the order of numbers in as few moves as possible.";
- 	String s4 = "Tile colors: Green = correct. Red = incorrect. Yellow = possible move.";
+ 	String s4 = "Tile colors: Green = correct. Red = incorrect. Blue = possible move.";
  	String s5 = "Move pieces into blank by clicking on the intended tile. ";
  	String s6 = "You may not move a numbered tile into a numbered spot. ";
  	String s7 = "Each block moved will be counted as one move. Use 'Hint' to get help.";
@@ -150,7 +150,7 @@ void Game_window::makeRules() { //21
 	rule_text.push_back(t8);
 }
 
-void Game_window::rule() { //21
+void Game_window::rule() { //21 Displays the rules of the screen
 	clear();
 	removeNames();
 	if(rule_text.size()==0) {
@@ -174,15 +174,15 @@ void Game_window::rule() { //21
 	redraw();
 }
 
-void Game_window::removeRules() { //5
+void Game_window::removeRules() { //5 removes all rule objects from the screen.
 	if(shown_rules) {
-		for(auto i: rule_text) //range based for and auto  features from c++11
+		for(auto i: rule_text) //range based for and auto features from c++11
 			detach(*i);
 		shown_rules=false;
 	}
 }
 
-void Game_window::removeHighs() { //6
+void Game_window::removeHighs() { //6 removes all high score objects from the screen.
 	if(shown_highs) {
 		for(int i=0;i<highs.size();i++)
 			detach(*highs[i]);
@@ -191,7 +191,7 @@ void Game_window::removeHighs() { //6
 	}
 }
 
-void Game_window::removeNames() { //5
+void Game_window::removeNames() { //5 removes all starter screen objects from the screen.
 	if(shown_names)	{
 		for(int i=0;i<names.size();i++)
 			detach(*names[i]);
@@ -199,7 +199,7 @@ void Game_window::removeNames() { //5
 	}
 }
 
-void Game_window::back() { //10
+void Game_window::back() { //10 connected to the back button callback
 	clear();
 	ShowTheTeam();
 	removeRules();
@@ -212,7 +212,7 @@ void Game_window::back() { //10
 	redraw();
 }
 
-void Game_window::create_button() { //23
+void Game_window::create_button() { //23 creates the moveable buttons in the gameplay
 	if (!button_exist) {
 		numbers.push_back(new Button{ Point{ xs.at(0), ys.at(0) }, 100, 100, "", [](Address, Address pw) {reference_to<Game_window>(pw).check_and_move(0);} });
 		numbers.push_back(new Button{ Point{ xs.at(1), ys.at(1) }, 100, 100, "1", [](Address, Address pw) {reference_to<Game_window>(pw).check_and_move(1);} });
@@ -238,7 +238,7 @@ void Game_window::create_button() { //23
 	}
 }
 
-void Game_window::fillStatics() { //12
+void Game_window::fillStatics() { //12 Attachs the static title to the hint box, move counter, and incorrect
 	Text* hint=new Text(Point(50,50),"HINT");
 	hint->set_font_size(20);
 	statics.push_back(hint);
@@ -254,7 +254,7 @@ void Game_window::fillStatics() { //12
 	attach(*statics[2]);
 }
 
-void Game_window::start() { //16	
+void Game_window::start() { //18 Method attached to callback of the start button	
 	removeNames();
 	removeRules();
 	fillStatics();
@@ -265,15 +265,18 @@ void Game_window::start() { //16
 	move_counter.clear();
 	fillMovesRemaining();
 	fillIncorrects();
-		for (int i = 0; i < 16; ++i)
-			attach(numbers[i]);
+	for (int i = 0; i < 16; ++i) {
+		attach(numbers[i]);
+		numbers[i].pw->labelcolor(Color::white);
+		numbers[i].pw->labelsize(30);
+	}
 	attach(hint_button);
 	attach(quit_button);
 	valid_label();
 	redraw();
 }
 
-void Game_window::fillMovesRemaining() { //5
+void Game_window::fillMovesRemaining() { //5 Fills the possible values the number of moves number can be.
 	for(int i=0;i<=total_moves;++i) {
 		Text* move=new Text(Point(500,475),""+to_string(i));
 		move->set_font_size(100);
@@ -281,7 +284,7 @@ void Game_window::fillMovesRemaining() { //5
 	}
 }
 
-void Game_window::fillIncorrects() { //5
+void Game_window::fillIncorrects() { //5 Fills the possible values the number of incorrect tiles number can be.
 	for(int i=1;i<=15;i++) {
 		Text* incor=new Text(Point(500,275),""+to_string(i));
 		incor->set_font_size(100);
@@ -289,8 +292,8 @@ void Game_window::fillIncorrects() { //5
 	}
 }
 	
-void Game_window::beg() { //19
-	lev = 1;
+void Game_window::beg() { //19 Provides coordinates of the tiles of Beginner difficulty	
+lev = 1;
 	total_moves = 10;
 	random_puzzle = rand() % 4 + 1;
 	switch (random_puzzle) {
@@ -312,7 +315,7 @@ void Game_window::beg() { //19
 	}
 }
 
-void Game_window::inte() { //19
+void Game_window::inte() { //19 Provides coordinates of the tiles of Intermediate difficulty
 	lev = 2;
 	total_moves = 20;
 	random_puzzle = rand() % 4 + 1;
@@ -335,7 +338,7 @@ void Game_window::inte() { //19
 	}
 }
 
-void Game_window::adv() { //19
+void Game_window::adv() { //19 Provides coordinates of the tiles of Advanced difficulty
 	lev = 3;
 	total_moves = 40;
 	random_puzzle = rand() % 4 + 1;
@@ -358,7 +361,7 @@ void Game_window::adv() { //19
 	}
 }
 
-void Game_window::expr() { //19
+void Game_window::expr() { //19 Provides coordinates of the tiles of Expert difficulty
 	lev = 4;
 	total_moves = 80;
 	switch (random_puzzle) {
@@ -380,10 +383,10 @@ void Game_window::expr() { //19
 	}
 }
 
-void Game_window::valid_label() { //22
+void Game_window::valid_label() { //22 Label the tiles and keep track of incorrect and correct tiles
 	correct_tile = 0;
 	incorrect_tile = 0;
-	for (int i = 0; i < 16; ++i) {
+	for (int i = 1; i < 16; ++i) {
 		if (abs(numbers[i].loc.x - numbers[0].loc.x) + abs(numbers[i].loc.y - numbers[0].loc.y) == 100) {
 			num_labels[i] = 1;
 		}
@@ -392,11 +395,11 @@ void Game_window::valid_label() { //22
 		}
 		if (numbers[i].loc.x == final_xs[i] && numbers[i].loc.y == final_ys[i]) {
 			++correct_tile;
-			numbers[i].pw->color(fl_rgb_color(152,251,152));
+			numbers[i].pw->color(fl_rgb_color(0,102,0));
 		}
 		else {
 			++incorrect_tile;
-			numbers[i].pw->color(fl_rgb_color(255,76,76)); 
+			numbers[i].pw->color(fl_rgb_color(153,0,0)); 
 		}
 	}
 	checkIncorrectNum();
@@ -405,22 +408,15 @@ void Game_window::valid_label() { //22
 	attach(*move_counter[moves_remain]);
 }
 
-void Game_window::checkIncorrectNum() { //6
+void Game_window::checkIncorrectNum() { //6 Determines whether to remove all numbers from gameplay of decrement incorrect tiles.
 	if(incorrect_tile==0)
 		dettachNums();
-	else if(incorrect_tile==1)
-		attach(*incorrects[incorrect_tile]);
 	else
-		attach(*incorrects[incorrect_tile-2]);
+		attach(*incorrects[incorrect_tile-1]);
 }
 
-void Game_window::dettachStatics() { //3
-	detach(*statics[0]);
-	detach(*statics[1]);
-	detach(*statics[2]);
-}
 
-void Game_window::display_score() { //20
+void Game_window::display_score() { //20 Removes all buttons from gameplay and displays final score and high score leaderboard
 	clear();
 	dettachStatics();
 	for (int i = 0; i < 16; ++i) {
@@ -443,20 +439,26 @@ void Game_window::display_score() { //20
 	redraw();
 }
 
-void Game_window::dettachNums() { //4
+void Game_window::dettachStatics() { //3 Detachs all the static text objects like the hint box and title of counters.
+	detach(*statics[0]);
+	detach(*statics[1]);
+	detach(*statics[2]);
+}
+
+void Game_window::dettachNums() { //4 Detachs all the text objects like the move counter and incorrect tile counter.
 	for(int i=0;i<move_counter.size();i++) 
 		detach(*move_counter[i]);
 	for(int i=0;i<incorrects.size();i++)
 		detach(*incorrects[i]);
 }
 
-void Game_window::dettachStats() { //3
+void Game_window::dettachStats() { //3 Detachs all the text objects like hint suggestions and invalid moves.
 	for(int i=0;i<stats.size();i++)
 		detach(*stats[i]);
 	stats.erase(stats.begin(),stats.end());
 }
 
-void Game_window::checkConditions(int k) { //22
+void Game_window::checkConditions(int k) { //23 Extension of Check_and_move. Byproduct of the 24 line rule.
 	if (num_labels[k] == 0) {
 		string x="This is not a valid tile to move.";
 		Text* t=new Text(Point(100,100),x);
@@ -465,6 +467,7 @@ void Game_window::checkConditions(int k) { //22
 		attach(*t);
 	}
 	else if (num_labels[k] == 1) {
+		detach(*incorrects[incorrect_tile-1]);
 		int tempX = numbers[k].loc.x;
 		int tempY = numbers[k].loc.y;
 		numbers[k].move(numbers[0].loc.x - tempX, numbers[0].loc.y - tempY);
@@ -475,14 +478,13 @@ void Game_window::checkConditions(int k) { //22
 	else {
 		for (int i = 1; i < 16; ++i) {
 			if (num_labels[i] == 1) {
-				numbers[i].pw->color(Color::yellow);
+				numbers[i].pw->color(fl_rgb_color(0,0,153));
 			}
 		}
 	}
 }
 
-void Game_window::check_and_move(int k) { //11
-	detach(*incorrects[incorrect_tile-2]);
+void Game_window::check_and_move(int k) { //11 Determines if tiles are valid to move or not. Displays if valid or not
 	dettachStats();
 	checkConditions(k);
 	if (moves_remain == 0) {
@@ -495,12 +497,12 @@ void Game_window::check_and_move(int k) { //11
 	}
 }
 
-int Game_window::dist_calc(int k) { //2
+int Game_window::dist_calc(int k) { //2 determines the manhatten distance 
 	return abs(numbers[k].loc.x - final_xs[0]) + abs(numbers[k].loc.y - final_ys[0]) +
 		abs(numbers[0].loc.x - final_xs[k]) + abs(numbers[0].loc.y - final_ys[k]);
 }
 
-void Game_window::hint() { //19
+void Game_window::hint() { //19 Method attached the callback of the hint button. attachs the suggestion to the screen
 	int suggestion;
 	int min_dist = -1;
 	for (int i = 1; i < 16; ++i) {
@@ -522,7 +524,7 @@ void Game_window::hint() { //19
 	redraw();
 }
 
-void Game_window::WriteFile() { //13
+void Game_window::WriteFile() { //13 Writes a blank file each time the game is loaded for the first time
 	ofstream o;
 	o.open(FILE_NAME, ios::trunc);
 	vector<string> diffs = {"Beginner", "Intermediate", "Advanced", "Expert"};
@@ -537,7 +539,7 @@ void Game_window::WriteFile() { //13
 	o.close();
 }
 
-void Game_window::DrawScores(string lim) { //22
+void Game_window::DrawScores(string lim) { //22 Draws the high score leaderboard on the screen
 	shown_highs=true;
 	ifstream in(FILE_NAME);
 	string x,one,two,res;
@@ -562,7 +564,7 @@ void Game_window::DrawScores(string lim) { //22
 	redraw();
 }
 
-void Game_window::addTheTop() { //6
+void Game_window::addTheTop() { //6 creates and attachs the high score leaderboard. Byproduct of the 24 line rule
 	Text* t = new Text(Point(350, 75), "HIGH SCORES");
 	t -> set_font_size(60);
 	Text* te = new Text(Point(450, 130), DifficultyString(lev));
@@ -571,7 +573,7 @@ void Game_window::addTheTop() { //6
 	highs.push_back(te);
 }
 
-string Game_window::DifficultyString(int l) { //10
+string Game_window::DifficultyString(int l) { //10 returns a string representation of each difficulty level
 	switch(l) {
 		case 1:
 			return "Beginner";		
@@ -584,7 +586,7 @@ string Game_window::DifficultyString(int l) { //10
 	}
 }
 
-int Game_window::CheckHighScores(int score, int lev) { //17
+int Game_window::CheckHighScores(int score, int lev) { //17 determines if the final score is high enough to be a high score
 	ifstream in;
 	in.open(FILE_NAME);
 	string diff=DifficultyString(lev);
@@ -604,12 +606,12 @@ int Game_window::CheckHighScores(int score, int lev) { //17
 	return -1;
 }
 
-void Game_window::NewHighScore() { //2
+void Game_window::NewHighScore() { //2 attach buttons after the high score is entered to prevent crashing
 	attach(high);
 	attach(enter_high);
 }
 
-void Game_window::EnterScore() { //24
+void Game_window::EnterScore() { //24 algorithm for entering a new score. compares high scores and overwrite the old scores with the new ones
 	detach(high);
 	detach(enter_high);
 	string initials=high.get_string();
@@ -636,7 +638,7 @@ void Game_window::EnterScore() { //24
 	makeTheSwitch();
 }
 
-void Game_window::makeTheSwitch() { //5
+void Game_window::makeTheSwitch() { //5 removes the old highscore file and renames the new one
 	rename("TEMP.txt","highScores.txt");
 	std::remove("TEMP.txt");
 	DrawScores(DifficultyString(lev));
@@ -648,10 +650,11 @@ void Game_window::quit() { //1
 	hide();
 }
 
-int main() { //15
+int main() { //15 The main function that started it all
 	try {
 		if (H112 != 201708L) {
 			error("Error: incorrect std_lib_facilities_5.h version ", H112);
+			Bogus(); //Implementation of the second class.
 		}
 		Game_window win{ Point(200, 200), 800, 600, "Game" };
 		return gui_main();

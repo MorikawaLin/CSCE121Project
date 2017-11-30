@@ -4,6 +4,7 @@
 #include "Window.h"
 #include "Graph.h"
 #include "GUI.h"
+#include "Bogus.h"
 
 struct Game_window : public Graph_lib::Window
 {
