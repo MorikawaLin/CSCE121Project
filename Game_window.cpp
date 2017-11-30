@@ -91,15 +91,18 @@ void Game_window::clear() { //3
 void Game_window::ShowTheTeam() { //13
 	shown_names=true;
 	string s="Pengchuan Lin  Eraj Mohiuddin  Cody Maffucci";
-	Text* t1=new Text(Point(170,200),"4x4 Square");
-	Text* t2=new Text(Point(x_max()/2,250),"By");
-	Text* t3=new Text(Point(70,300),s);
+	Text* t1=new Text(Point(200,200),"4x4 Square");
+	Text* t2=new Text(Point(375,250),"By");
+	Text* t3=new Text(Point(60,300),s);
+	Text* t4=new Text(Point(345,350),"Team 32");
 	t1->set_font_size(70);
 	t2->set_font_size(20);
 	t3->set_font_size(30);
+	t4->set_font_size(20);
 	names.push_back(t1);
 	names.push_back(t2);
 	names.push_back(t3);
+	names.push_back(t4);
 	for(int i=0;i<names.size();i++) 
 		attach(*names[i]);
 }
@@ -173,8 +176,8 @@ void Game_window::rule() { //21
 
 void Game_window::removeRules() { //5
 	if(shown_rules) {
-		for(int i=0;i<rule_text.size();i++)
-			detach(*rule_text[i]);
+		for(auto i: rule_text) //range based for and auto  features from c++11
+			detach(*i);
 		shown_rules=false;
 	}
 }
@@ -279,7 +282,7 @@ void Game_window::fillMovesRemaining() { //5
 }
 
 void Game_window::fillIncorrects() { //5
-	for(int i=1;i<=15;++i) {
+	for(int i=1;i<=15;i++) {
 		Text* incor=new Text(Point(500,275),""+to_string(i));
 		incor->set_font_size(100);
 		incorrects.push_back(incor);
@@ -440,11 +443,15 @@ void Game_window::dettachNums() { //4
 		detach(*incorrects[i]);
 }
 
-void Game_window::check_and_move(int k) { //34 still too long and I will break it
-	detach(*incorrects[incorrect_tile-2]);
+void Game_window::dettachStats() {
 	for(int i=0;i<stats.size();i++)
 		detach(*stats[i]);
 	stats.erase(stats.begin(),stats.end());
+}
+
+void Game_window::check_and_move(int k) { //32 still too long and I will break it
+	detach(*incorrects[incorrect_tile-2]);
+	dettachStats();
 	if (num_labels[k] == 0) {
 		string x="This is not a valid tile to move.";
 		Text* t=new Text(Point(100,100),x);
@@ -467,7 +474,6 @@ void Game_window::check_and_move(int k) { //34 still too long and I will break i
 			}
 		}
 	}
-
 	if (moves_remain == 0) {
 		dettachNums();
 		display_score();

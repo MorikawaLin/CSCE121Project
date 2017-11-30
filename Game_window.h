@@ -66,6 +66,7 @@ private:
 
 	void dettachNums();
 	void dettachStatics();
+	void dettachStats();
 
 	static void cb_choose(Address, Address);
 	void choose();
