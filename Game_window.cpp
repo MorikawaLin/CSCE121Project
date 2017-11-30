@@ -449,9 +449,7 @@ void Game_window::dettachStats() {
 	stats.erase(stats.begin(),stats.end());
 }
 
-void Game_window::check_and_move(int k) { //32 still too long and I will break it
-	detach(*incorrects[incorrect_tile-2]);
-	dettachStats();
+void Game_window::checkConditions(int k) { //22
 	if (num_labels[k] == 0) {
 		string x="This is not a valid tile to move.";
 		Text* t=new Text(Point(100,100),x);
@@ -474,6 +472,12 @@ void Game_window::check_and_move(int k) { //32 still too long and I will break i
 			}
 		}
 	}
+}
+
+void Game_window::check_and_move(int k) { //11
+	detach(*incorrects[incorrect_tile-2]);
+	dettachStats();
+	checkConditions(k);
 	if (moves_remain == 0) {
 		dettachNums();
 		display_score();
@@ -584,15 +588,12 @@ int Game_window::CheckHighScores(int score, int lev) { //20
 				in>>x>>x;
 				int comp=atoi(x.c_str());
 				if(comp<score) {
-					in.close();
 					return i;
 				}
 			}
-			in.close();
 			return -1;
 		}
 	}
-	in.close();
 	return -1;
 }
 
